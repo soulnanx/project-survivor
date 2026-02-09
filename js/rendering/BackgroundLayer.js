@@ -1,6 +1,7 @@
 import {
     COLS, ROWS, TILE_SIZE, HUD_HEIGHT,
     CELL_WALL, CELL_BRICK, CELL_EMPTY,
+    EXIT_COL, EXIT_ROW,
     COLOR_FLOOR, COLOR_FLOOR_ALT,
     COLOR_WALL, COLOR_WALL_LIGHT, COLOR_WALL_DARK,
     COLOR_BRICK, COLOR_BRICK_LIGHT, COLOR_BRICK_DARK
@@ -121,23 +122,32 @@ export default class BackgroundLayer {
                 const tileKey = `${c},${r}`;
                 const tileDecor = this.decorativeTiles[tileKey];
 
-                // Textura de sujeira procedural (usar dados pré-calculados)
-                if (cell === CELL_EMPTY && tileDecor && tileDecor.hasDirt) {
+                // Textura de sujeira procedural (usar dados pré-calculados) — não na tile de saída
+                if (cell === CELL_EMPTY && tileDecor && tileDecor.hasDirt && !(c === EXIT_COL && r === EXIT_ROW)) {
                     ctx.fillStyle = palette.crack;
                     ctx.fillRect(x + 2, y + 2, TILE_SIZE - 4, TILE_SIZE - 4);
                 }
 
-                // Parede sólida
+                // Parede sólida (tile acima da saída = abertura/escada)
                 if (cell === CELL_WALL) {
-                    this._drawApocalypticWall(ctx, x, y, palette, tileDecor);
+                    if (c === EXIT_COL && r === EXIT_ROW - 1) {
+                        this._drawExitWallTile(ctx, x, y, palette);
+                    } else {
+                        this._drawApocalypticWall(ctx, x, y, palette, tileDecor);
+                    }
                 } else if (cell === CELL_BRICK) {
                     // Desenhar escombros apocalípticos
                     this._drawDebrisTile(ctx, x, y, TILE_SIZE, palette, c, r);
                 }
 
-                // Manchas de sangue ocasionais (usar dados pré-calculados)
-                if (cell === CELL_EMPTY && tileDecor && tileDecor.hasBlood) {
+                // Manchas de sangue ocasionais (usar dados pré-calculados) — não na tile de saída
+                if (cell === CELL_EMPTY && tileDecor && tileDecor.hasBlood && !(c === EXIT_COL && r === EXIT_ROW)) {
                     this._drawBloodStain(ctx, x, y, TILE_SIZE, palette.blood);
+                }
+
+                // Tile de saída (escada) — Fase 19
+                if (cell === CELL_EMPTY && c === EXIT_COL && r === EXIT_ROW) {
+                    this._drawExitTile(ctx, x, y, palette);
                 }
             }
         }
@@ -175,6 +185,48 @@ export default class BackgroundLayer {
         if (tileDecor && tileDecor.hasDebris) {
             this._drawDebris(ctx, x, y, s, palette.debris);
         }
+    }
+
+    /** Fase 19: escada/saída na célula (EXIT_COL, EXIT_ROW) */
+    _drawExitTile(ctx, x, y, palette) {
+        const s = TILE_SIZE;
+        const stepH = 10;
+        const stepCount = 4;
+        // Degraus descendo do topo (conectando à parede acima)
+        for (let i = 0; i < stepCount; i++) {
+            const stepY = y + 4 + i * stepH;
+            const stepW = s - 8 - i * 6;
+            const stepX = x + 4 + (i * 3);
+            // Face do degrau (sombra)
+            ctx.fillStyle = palette.wallDark || '#2a2a1a';
+            ctx.fillRect(stepX, stepY + 2, stepW, stepH - 2);
+            // Topo do degrau (destaque)
+            ctx.fillStyle = palette.wallLight || '#6a5a4a';
+            ctx.fillRect(stepX, stepY, stepW, 2);
+        }
+    }
+
+    /** Fase 19: parede com abertura/topo da escada em (EXIT_COL, 0) */
+    _drawExitWallTile(ctx, x, y, palette) {
+        const s = TILE_SIZE;
+        const b = 4;
+        // Face principal da parede
+        ctx.fillStyle = palette.wall;
+        ctx.fillRect(x, y, s, s);
+        // Destaque topo/esquerda
+        ctx.fillStyle = palette.wallLight;
+        ctx.fillRect(x, y, s, b);
+        ctx.fillRect(x, y, b, s);
+        // Sombra direita
+        ctx.fillStyle = palette.wallDark;
+        ctx.fillRect(x + s - b, y, b, s);
+        // Abertura na metade inferior (topo da escada)
+        ctx.fillStyle = palette.wallDark || '#1a1a12';
+        ctx.fillRect(x + 4, y + s * 0.45, s - 8, s * 0.55 - 4);
+        // Linhas dos degraus na base da abertura (conectam visualmente à tile abaixo)
+        ctx.fillStyle = palette.wall;
+        ctx.fillRect(x + 6, y + s - 14, s - 12, 2);
+        ctx.fillRect(x + 8, y + s - 10, s - 16, 2);
     }
 
     _drawCrack(ctx, x, y, size, color) {

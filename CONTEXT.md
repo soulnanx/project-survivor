@@ -2,7 +2,7 @@
 
 ## Status Atual
 
-**Última atualização:** Fase 17 - Sistema de Rage dos Zumbis - 2026-02-09
+**Última atualização:** Fase 19 - Tile de Saída (escada) no level - 2026-02-09
 
 ### Fases Implementadas ✅
 
@@ -23,6 +23,7 @@
 - ✅ **Fase 15**: Sistema de Ataque Físico (soco, knockback, dano corpo-a-corpo)
 - ✅ **Fase 16**: Sistema de Inventário de Bombas (slots, UI)
 - ✅ **Fase 17**: Sistema de Rage dos Zumbis (rage ao explodir bomba, velocidade, feedback visual)
+- ✅ **Fase 19**: Tile de Saída (escada) no level — visual de saída em (1,1) e parede com abertura em (1,0)
 
 ---
 

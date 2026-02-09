@@ -85,11 +85,11 @@ return playerCol === EXIT_COL && playerRow === EXIT_ROW;
 
 ## Checklist de Aceitação
 
-- [ ] Na célula (1, 1) aparece um visual claro de saída (escada ou equivalente).
-- [ ] Na célula (1, 0) aparece um visual que sugere topo da escada / abertura.
-- [ ] Gameplay inalterado: E em (1,1) continua saindo do level; (1,0) continua intransitável.
-- [ ] Opcional: constantes `EXIT_COL`/`EXIT_ROW` e uso em `_isPlayerAtEntrance()`.
+- [x] Na célula (1, 1) aparece um visual claro de saída (escada ou equivalente).
+- [x] Na célula (1, 0) aparece um visual que sugere topo da escada / abertura.
+- [x] Gameplay inalterado: E em (1,1) continua saindo do level; (1,0) continua intransitável.
+- [x] Opcional: constantes `EXIT_COL`/`EXIT_ROW` e uso em `_isPlayerAtEntrance()`.
 
 ---
 
-## Status: ⬜ Pendente
+## Status: ✅ IMPLEMENTADO

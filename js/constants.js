@@ -10,6 +10,10 @@ export const CELL_EMPTY = 0;
 export const CELL_WALL = 1;
 export const CELL_BRICK = 2;
 
+// Saída do level (Fase 19 - tile de escada)
+export const EXIT_COL = 1;
+export const EXIT_ROW = 1;
+
 // Game states
 export const STATE_INTRO = 'INTRO';
 export const STATE_MENU = 'MENU';

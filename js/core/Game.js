@@ -8,7 +8,7 @@ import EventBus from './EventBus.js';
 import EntityManager from './EntityManager.js';
 import Grid from '../world/Grid.js';
 import DungeonGenerator from '../world/DungeonGenerator.js';
-import { DUNGEON_SEED_BASE, DUNGEON_SEED_OFFSET } from '../constants.js';
+import { DUNGEON_SEED_BASE, DUNGEON_SEED_OFFSET, EXIT_COL, EXIT_ROW } from '../constants.js';
 import Renderer from '../rendering/Renderer.js';
 import CollisionSystem from '../systems/CollisionSystem.js';
 import BombSystem from '../systems/BombSystem.js';
@@ -292,7 +292,7 @@ export default class Game {
         if (!this.player) return false;
         const playerCol = pixelToGridCol(this.player.x);
         const playerRow = pixelToGridRow(this.player.y);
-        return playerCol === 1 && playerRow === 1;
+        return playerCol === EXIT_COL && playerRow === EXIT_ROW;
     }
 
     _updatePaused(dt) {
