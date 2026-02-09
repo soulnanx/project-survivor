@@ -7,6 +7,7 @@ Jogo de survival estilo RPG/Roguelike desenvolvido em JavaScript vanilla com spr
 ✅ **Fases 1-11 Implementadas** - Sistema RPG completo com Save/Load, Dungeons procedurais
 ✅ **Fase 12 Implementada** - Sprites LPC para Player e Enemies (Zombies)
 ✅ **Fase 14 Parcialmente Implementada** - Tema apocalíptico com efeitos visuais
+✅ **Sistema de Atração de Zumbis** - Zumbis são atraídos por explosões de bombas (tática gameplay)
 
 Ver `CONTEXT.md` para contexto completo e próximos passos.
 

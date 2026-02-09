@@ -20,16 +20,25 @@ export default class SmartBehavior extends Behavior {
     }
 
     update(entity, dt, context) {
-        const { grid, entityManager, player } = context;
+        const { grid, entityManager, player, attractionSystem } = context;
         entity.moving = true;
 
         const col = pixelToGridCol(entity.x);
         const row = pixelToGridRow(entity.y);
 
+        // CHECK ATTRACTION FIRST
+        const attraction = attractionSystem?.getAttractionTarget(col, row);
+
         this.recalcTimer += dt;
 
         if (this.recalcTimer >= this.recalcInterval || !this.path || this.pathIndex >= this.path.length) {
-            this._recalcPath(entity, grid, entityManager, player, col, row);
+            if (attraction) {
+                // Pathfind to attraction instead of player
+                this._recalcPathToTarget(entity, grid, entityManager, col, row, attraction.col, attraction.row);
+            } else {
+                // Original behavior: pathfind to player
+                this._recalcPath(entity, grid, entityManager, player, col, row);
+            }
             this.recalcTimer = 0;
         }
 
@@ -92,6 +101,28 @@ export default class SmartBehavior extends Behavior {
 
         this.path = bfsPath(col, row, playerCol, playerRow, passable);
         this.pathIndex = 0;
+    }
+
+    _recalcPathToTarget(entity, grid, entityManager, col, row, targetCol, targetRow) {
+        const passable = (c, r) => {
+            if (grid.isSolid(c, r)) return false;
+            // Avoid bombs
+            const bombs = entityManager.getByType('bomb');
+            for (const bomb of bombs) {
+                if (pixelToGridCol(bomb.x) === c && pixelToGridRow(bomb.y) === r) {
+                    return false;
+                }
+            }
+            return true;
+        };
+
+        this.path = bfsPath(col, row, targetCol, targetRow, passable);
+        this.pathIndex = 0;
+
+        // If no path found, clear it
+        if (!this.path || this.path.length === 0) {
+            this.path = null;
+        }
     }
 
     _wander(entity, dt, grid, entityManager, col, row) {

@@ -18,11 +18,14 @@ export default class ChaserBehavior extends Behavior {
     }
 
     update(entity, dt, context) {
-        const { grid, entityManager, player } = context;
+        const { grid, entityManager, player, attractionSystem } = context;
         entity.moving = true;
 
         const col = pixelToGridCol(entity.x);
         const row = pixelToGridRow(entity.y);
+
+        // CHECK ATTRACTION FIRST
+        const attraction = attractionSystem?.getAttractionTarget(col, row);
 
         this.decisionTimer += dt;
 
@@ -32,7 +35,13 @@ export default class ChaserBehavior extends Behavior {
         const blocked = grid.isSolid(nextCol, nextRow) || this._hasBomb(entityManager, nextCol, nextRow);
 
         if (blocked || this.decisionTimer >= this.decisionInterval) {
-            this._chooseDirection(entity, grid, entityManager, player, col, row);
+            if (attraction) {
+                // Move toward attraction (priority over player)
+                this._chooseDirectionToTarget(grid, entityManager, col, row, attraction.col, attraction.row);
+            } else {
+                // Original behavior: chase player
+                this._chooseDirection(entity, grid, entityManager, player, col, row);
+            }
             this.decisionTimer = 0;
         }
 
@@ -119,5 +128,26 @@ export default class ChaserBehavior extends Behavior {
         return entityManager.getByType('bomb').some(b => {
             return pixelToGridCol(b.x) === col && pixelToGridRow(b.y) === row;
         });
+    }
+
+    _chooseDirectionToTarget(grid, entityManager, col, row, targetCol, targetRow) {
+        const open = DIRECTIONS.filter(d => {
+            const nc = col + d.dx;
+            const nr = row + d.dy;
+            return !grid.isSolid(nc, nr) && !this._hasBomb(entityManager, nc, nr);
+        });
+
+        if (open.length > 0) {
+            // Sort by distance to target
+            open.sort((a, b) => {
+                const distA = dist(col + a.dx, row + a.dy, targetCol, targetRow);
+                const distB = dist(col + b.dx, row + b.dy, targetCol, targetRow);
+                return distA - distB;
+            });
+            this.currentDir = open[0];
+        } else {
+            // All blocked, pick random
+            this._pickRandom(grid, entityManager, col, row);
+        }
     }
 }

@@ -2,7 +2,7 @@
 
 ## Status Atual
 
-**Última atualização:** Fase 12 - Sprite Integration (Player + Enemies) - 2026-02-09
+**Última atualização:** Sistema de Atração de Zumbis - 2026-02-09
 
 ### Fases Implementadas ✅
 
@@ -19,6 +19,7 @@
 - ✅ **Fase 11**: Reestruturação Survivor (HUB, escape, permadeath, remoção de power-ups)
 - ✅ **Fase 12**: Integração de Sprites LPC (Player + Enemies com fallback procedural)
 - ✅ **Fase 14**: Tema Apocalíptico (backgrounds, explosions, UI redesign)
+- ✅ **Sistema de Atração de Zumbis**: Zumbis são atraídos por explosões por 10 segundos
 
 ---
 
@@ -54,6 +55,13 @@
   - Gerador de números pseudo-aleatórios baseado em seed
   - Algoritmo Mulberry32 para geração determinística
 
+- **AttractionSystem** (`js/systems/AttractionSystem.js`)
+  - Gerencia atração de zumbis a explosões de bombas
+  - Escuta `bomb:detonated` para registrar pontos de atração
+  - Atrações duram 10 segundos
+  - Cada zumbi (independente do behavior) é atraído pela explosão mais próxima
+  - Comportamentos adaptam movimento para perseguir atração ao invés do alvo original
+
 ### Player Stats
 
 O Player agora tem:
@@ -75,6 +83,7 @@ Eventos principais:
 - `player:crit` - Crítico ocorreu (dano 2x)
 - `level:complete` - Dungeon completada (volta ao HUB)
 - `level:started` - Dungeon iniciada
+- `bomb:detonated` - Bomba explodiu (cria atração para zumbis)
 
 ### Renderização com Sprites (Fase 12)
 
@@ -195,6 +204,7 @@ bomberman/
 │   │   ├── ExperienceSystem.js ✅
 │   │   ├── SaveSystem.js ✅
 │   │   ├── CollisionSystem.js ✅
+│   │   ├── AttractionSystem.js ✅ (atração de zumbis a explosões)
 │   │   └── ...
 │   ├── entities/
 │   │   ├── Player.js ✅ (tem hp, level, xp, defense, attackPower, critChance)

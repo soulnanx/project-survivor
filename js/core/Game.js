@@ -12,6 +12,7 @@ import { DUNGEON_SEED_BASE, DUNGEON_SEED_OFFSET } from '../constants.js';
 import Renderer from '../rendering/Renderer.js';
 import CollisionSystem from '../systems/CollisionSystem.js';
 import BombSystem from '../systems/BombSystem.js';
+import AttractionSystem from '../systems/AttractionSystem.js';
 import ScoreSystem from '../systems/ScoreSystem.js';
 import LevelSystem from '../systems/LevelSystem.js';
 import ExperienceSystem from '../systems/ExperienceSystem.js';
@@ -34,6 +35,7 @@ export default class Game {
         this.renderer = new Renderer(this.ctx, this.canvas);
         this.collisionSystem = new CollisionSystem();
         this.bombSystem = new BombSystem();
+        this.attractionSystem = new AttractionSystem();
         this.scoreSystem = new ScoreSystem();
         this.levelSystem = new LevelSystem();
         this.experienceSystem = new ExperienceSystem();
@@ -238,11 +240,13 @@ export default class Game {
             player: this.player,
             bombSystem: this.bombSystem,
             soundEngine: this.soundEngine,
+            attractionSystem: this.attractionSystem,
             level: this.level,
         };
 
         this.entityManager.update(dt, context);
         this.bombSystem.update(dt, context);
+        this.attractionSystem.update(dt);
         this.collisionSystem.update(context);
         this.levelSystem.update(context);
         this.experienceSystem.update(context);
