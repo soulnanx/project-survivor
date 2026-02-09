@@ -143,3 +143,32 @@ export const ZOMBIE_SPRITE_SIZE = 64;       // Source sprite size (64x64px PNG)
 export const ZOMBIE_ANIMATION_FPS = 8;      // Animation frame rate (slower than player)
 export const ZOMBIE_IDLE_FRAME = 5;         // Middle frame for idle (1-indexed)
 export const ZOMBIE_FRAME_COUNT = 9;        // Frames per direction
+
+// Rage System (Phase 17)
+export const RAGE_DURATION_MOVEMENT_MIN = 2.0; // segundos (mínimo)
+export const RAGE_DURATION_MOVEMENT_MAX = 10.0; // segundos (máximo)
+export const RAGE_DURATION_PAUSE = 3.0; // segundos
+export const RAGE_DURATION_DISTANCE_FACTOR = 0.5; // segundos por tile
+
+// Multiplicadores de tempo por tipo
+export const RAGE_TIME_MULTIPLIERS = {
+    'wanderer': 0.9,  // 10% menos tempo
+    'chaser': 1.0,    // Tempo padrão
+    'smart': 1.1      // 10% mais tempo
+};
+
+// Velocidade
+export const RAGE_SPEED_MULTIPLIER_BASE = 1.3; // 30% mais rápido (base)
+export const RAGE_SPEED_MULTIPLIER_PER_LEVEL = 0.02; // +2% por nível
+export const MAX_RAGE_SPEED_MULTIPLIER = 2.0; // Nunca mais que 2x
+export const RAGE_TRANSITION_TIME = 0.8; // segundos para transição suave
+
+// Distância e chegada
+export const RAGE_ARRIVAL_DISTANCE = TILE_SIZE; // 48px (1 tile)
+export const RAGE_IMMEDIATE_PAUSE_DISTANCE = 0.5; // tiles (entra direto em pausa)
+
+// Cooldown
+export const RAGE_COOLDOWN = 1.5; // segundos após sair de rage
+
+// Visual
+export const RAGE_VISUAL_FADE_TIME = 0.5; // segundos para fade out

@@ -2,7 +2,7 @@
 
 ## Status Atual
 
-**Última atualização:** Sistema de Atração de Zumbis - 2026-02-09
+**Última atualização:** Fase 17 - Sistema de Rage dos Zumbis - 2026-02-09
 
 ### Fases Implementadas ✅
 
@@ -20,6 +20,9 @@
 - ✅ **Fase 12**: Integração de Sprites LPC (Player + Enemies com fallback procedural)
 - ✅ **Fase 14**: Tema Apocalíptico (backgrounds, explosions, UI redesign)
 - ✅ **Sistema de Atração de Zumbis**: Zumbis são atraídos por explosões por 10 segundos
+- ✅ **Fase 15**: Sistema de Ataque Físico (soco, knockback, dano corpo-a-corpo)
+- ✅ **Fase 16**: Sistema de Inventário de Bombas (slots, UI)
+- ✅ **Fase 17**: Sistema de Rage dos Zumbis (rage ao explodir bomba, velocidade, feedback visual)
 
 ---
 
@@ -62,6 +65,16 @@
   - Cada zumbi (independente do behavior) é atraído pela explosão mais próxima
   - Comportamentos adaptam movimento para perseguir atração ao invés do alvo original
 
+- **RageSystem** (`js/systems/RageSystem.js`)
+  - Gerencia estado de rage dos zumbis quando bombas explodem
+  - Escuta `bomb:detonated` e emite `rage:triggered`
+  - Calcula duração dinâmica baseada em distância Manhattan e tipo de zumbi
+  - Multiplicadores de tempo por tipo: wanderer (0.9x), chaser (1.0x), smart (1.1x)
+  - Estados: `moving` → `paused` → `none`
+  - Velocidade aumentada com transição suave (lerp) e cap máximo de 2x
+  - Cooldown de 1.5s após sair de rage (evita loops)
+  - Feedback visual: aura pulsante + tint vermelho com intensidade por fase
+
 ### Player Stats
 
 O Player agora tem:
@@ -83,7 +96,10 @@ Eventos principais:
 - `player:crit` - Crítico ocorreu (dano 2x)
 - `level:complete` - Dungeon completada (volta ao HUB)
 - `level:started` - Dungeon iniciada
-- `bomb:detonated` - Bomba explodiu (cria atração para zumbis)
+- `bomb:detonated` - Bomba explodiu (cria atração para zumbis e trigger de rage)
+- `rage:triggered` - Rage ativada (com posição da explosão e células afetadas)
+- `zombie:rage_start` - Zumbi entrou em rage
+- `zombie:rage_arrived` - Zumbi chegou ao local da explosão
 
 ### Renderização com Sprites (Fase 12)
 
@@ -137,9 +153,9 @@ Spec completa: `docs/specs/11-nova-fase-survivor-system.md`
 - ✅ **Fase 12**: Integração de Sprites LPC (Player humano, Inimigos zumbis) - COMPLETA
 - ✅ **Fase 13**: Renomeação do Jogo para Project Survivor - COMPLETA
 - ✅ **Fase 14**: Transformação do Cenário Apocalíptico (backgrounds, explosions, UI) - 80% COMPLETA
-- ⬜ **Fase 15**: Save System v4 (save no dano, delete na morte) - PRIORIDADE ALTA
-- ⬜ **Fase 16**: Sistema de Knockback e Drops - PRIORIDADE ALTA
-- ⬜ **Fase 17**: Inventário e Sistema de Equipamentos - PRIORIDADE MÉDIA
+- ✅ **Fase 15**: Sistema de Ataque Físico (soco, knockback, dano corpo-a-corpo) - COMPLETA
+- ✅ **Fase 16**: Sistema de Inventário de Bombas - COMPLETA
+- ✅ **Fase 17**: Sistema de Rage dos Zumbis (velocidade, fases, feedback visual) - COMPLETA
 - ⬜ **Fase 18**: Variedade de Dungeons (tipos, tiers, modificadores) - PRIORIDADE MÉDIA
 - ⬜ **Fase 19**: Loja no HUB - PRIORIDADE BAIXA
 - ⬜ **Fase 20+**: Polish e Expansão
@@ -205,6 +221,7 @@ bomberman/
 │   │   ├── SaveSystem.js ✅
 │   │   ├── CollisionSystem.js ✅
 │   │   ├── AttractionSystem.js ✅ (atração de zumbis a explosões)
+│   │   ├── RageSystem.js ✅ (rage dos zumbis com fases e feedback visual)
 │   │   └── ...
 │   ├── entities/
 │   │   ├── Player.js ✅ (tem hp, level, xp, defense, attackPower, critChance)

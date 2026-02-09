@@ -14,7 +14,8 @@ Esta pasta contém toda a documentação de especificações e planos de impleme
 - `14-fase-14-cenario-apocaliptico.md` - Transformação do Cenário Apocalíptico (⬜ Pendente)
 - `15-fase-15-ataque-fisico.md` - Sistema de Ataque Físico (✅ Implementado)
 - `16-fase-16-knockback-e-hp-zumbis.md` - Knockback e HP dos Zumbis (⬜ Pendente)
-- `17-fase-17-sprite-direcional-player.md` - Sprite Direcional do Player (⬜ Pendente)
+- `17-fase-17-zombie-rage-system.md` - Sistema de Rage dos Zumbis (✅ Implementado)
+- `17-fase-17-sugestoes-melhorias.md` - Sugestões detalhadas de melhorias para o sistema de rage
 
 ## Status Geral
 
@@ -40,7 +41,7 @@ O jogo é um **survival game com permadeath** inspirado em Project Zomboid:
 - ✅ **Fase 14**: Transformação do Cenário Apocalíptico (backgrounds, escombros, UI, temas) - IMPLEMENTADO (80%)
 - ✅ **Fase 15**: Sistema de Ataque Físico (soco, dano corpo-a-corpo) - COMPLETA
 - ⬜ **Fase 16**: Knockback e HP dos Zumbis (10 HP, empurrão ao receber dano físico)
-- ⬜ **Fase 17**: Sprite Direcional do Player (sprite muda conforme direção)
+- ✅ **Fase 17**: Sistema de Rage dos Zumbis (velocidade, fases, feedback visual) - COMPLETA
 - ⬜ **Fase 18**: Sistema de Drops e Inventário (ouro, equipamentos, poções)
 - ⬜ **Fase 19**: Variedade de Dungeons (tipos, modificadores, tiers)
 - ⬜ **Fase 20**: Loja no HUB (cura, equipamentos)

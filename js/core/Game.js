@@ -13,6 +13,7 @@ import Renderer from '../rendering/Renderer.js';
 import CollisionSystem from '../systems/CollisionSystem.js';
 import BombSystem from '../systems/BombSystem.js';
 import AttractionSystem from '../systems/AttractionSystem.js';
+import RageSystem from '../systems/RageSystem.js';
 import ScoreSystem from '../systems/ScoreSystem.js';
 import LevelSystem from '../systems/LevelSystem.js';
 import ExperienceSystem from '../systems/ExperienceSystem.js';
@@ -36,6 +37,7 @@ export default class Game {
         this.collisionSystem = new CollisionSystem();
         this.bombSystem = new BombSystem();
         this.attractionSystem = new AttractionSystem();
+        this.rageSystem = new RageSystem();
         this.scoreSystem = new ScoreSystem();
         this.levelSystem = new LevelSystem();
         this.experienceSystem = new ExperienceSystem();
@@ -100,6 +102,21 @@ export default class Game {
         });
         EventBus.on('player:physicalAttack', ({ x, y, direction, hit }) => {
             this.renderer.particleSystem.emitPhysicalAttack(x, y, direction, hit);
+        });
+        
+        // Rage System events
+        EventBus.on('rage:triggered', ({ explosionCol, explosionRow, cells }) => {
+            this._handleRageTriggered(explosionCol, explosionRow, cells);
+        });
+        
+        EventBus.on('zombie:rage_start', ({ zombie }) => {
+            // Optional: play sound effect
+            // this.soundEngine.play('zombieRage');
+        });
+        
+        EventBus.on('zombie:rage_arrived', ({ zombie }) => {
+            // Optional: play sound effect
+            // this.soundEngine.play('zombieRageArrival');
         });
     }
 
@@ -241,12 +258,14 @@ export default class Game {
             bombSystem: this.bombSystem,
             soundEngine: this.soundEngine,
             attractionSystem: this.attractionSystem,
+            rageSystem: this.rageSystem,
             level: this.level,
         };
 
         this.entityManager.update(dt, context);
         this.bombSystem.update(dt, context);
         this.attractionSystem.update(dt);
+        this.rageSystem.update(dt);
         this.collisionSystem.update(context);
         this.levelSystem.update(context);
         this.experienceSystem.update(context);
@@ -456,6 +475,39 @@ export default class Game {
 
         this.transitionTimer = LEVEL_TRANSITION_TIME;
         this.state = STATE_LEVEL_COMPLETE;
+    }
+
+    /**
+     * Handle rage triggered event - start rage for all enemies
+     * @param {number} explosionCol - Explosion grid column
+     * @param {number} explosionRow - Explosion grid row
+     * @param {Array} cells - Array of cells affected by explosion
+     */
+    _handleRageTriggered(explosionCol, explosionRow, cells) {
+        const enemies = this.entityManager.getLayer('enemies');
+        
+        for (const enemy of enemies) {
+            if (!enemy.alive) continue;
+            
+            const zombieCol = pixelToGridCol(enemy.x);
+            const zombieRow = pixelToGridRow(enemy.y);
+            
+            // Calculate dynamic duration
+            const duration = this.rageSystem.calculateRageDuration(
+                zombieCol,
+                zombieRow,
+                explosionCol,
+                explosionRow,
+                enemy.enemyType
+            );
+            
+            // Start rage
+            enemy.startRage(
+                { col: explosionCol, row: explosionRow, cells },
+                duration,
+                this.rageSystem
+            );
+        }
     }
 
     _render() {

@@ -156,11 +156,21 @@ export default class EntityRenderer {
     drawEnemy(ctx, enemy) {
         if (!enemy.alive) return;
 
+        // Draw rage effects first (behind zombie)
+        if (enemy.isRaging && enemy.rageVisualIntensity > 0) {
+            this._drawRageEffects(ctx, enemy);
+        }
+
         // Try sprite rendering first, fallback to procedural
         if (this.zombieLoader.isReady()) {
             this._drawZombieSprite(ctx, enemy);
         } else {
             this._drawZombieProcedural(ctx, enemy);
+        }
+
+        // Draw rage tint overlay (on top of zombie)
+        if (enemy.isRaging && enemy.rageVisualIntensity > 0) {
+            this._drawRageTint(ctx, enemy);
         }
 
         // HP Bar (only show when damaged)
@@ -524,5 +534,67 @@ export default class EntityRenderer {
         ctx.strokeStyle = '#000';
         ctx.lineWidth = 1;
         ctx.strokeRect(barX, barY, barWidth, barHeight);
+    }
+
+    /**
+     * Draw rage visual effects (aura pulsante)
+     * @param {CanvasRenderingContext2D} ctx 
+     * @param {Object} enemy - Enemy entity
+     */
+    _drawRageEffects(ctx, enemy) {
+        const { x, y, rageVisualIntensity, ragePhase, animTimer } = enemy;
+        
+        // Aura pulsante ao redor do zumbi
+        const pulse = Math.sin((animTimer || 0) * 5) * 0.5 + 0.5; // 0 a 1
+        const baseRadius = 30;
+        const pulseRadius = baseRadius + pulse * 10; // Pulsa entre 30-40px
+        
+        // Intensidade baseada na fase
+        let intensity = rageVisualIntensity;
+        if (ragePhase === 'paused') {
+            intensity = 1.0; // Máximo durante pausa
+        }
+        
+        // Aura externa (mais suave)
+        const outerAlpha = 0.3 * intensity * pulse;
+        ctx.strokeStyle = `rgba(255, 0, 0, ${outerAlpha})`;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(x, y, pulseRadius, 0, Math.PI * 2);
+        ctx.stroke();
+        
+        // Aura interna (mais intensa)
+        const innerAlpha = 0.5 * intensity * (1 - pulse * 0.5);
+        ctx.strokeStyle = `rgba(255, 100, 100, ${innerAlpha})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(x, y, baseRadius * 0.7, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+
+    /**
+     * Draw rage tint overlay (vermelho sobre o sprite)
+     * @param {CanvasRenderingContext2D} ctx 
+     * @param {Object} enemy - Enemy entity
+     */
+    _drawRageTint(ctx, enemy) {
+        const { x, y, rageVisualIntensity, ragePhase } = enemy;
+        
+        // Intensidade baseada na fase
+        let intensity = rageVisualIntensity;
+        if (ragePhase === 'paused') {
+            intensity = 1.0; // Máximo durante pausa
+        }
+        
+        // Tint vermelho usando multiply blend mode
+        ctx.save();
+        ctx.globalCompositeOperation = 'multiply';
+        ctx.globalAlpha = intensity * 0.4; // 40% de opacidade máxima
+        
+        const size = TILE_SIZE * 0.8;
+        ctx.fillStyle = '#ff0000';
+        ctx.fillRect(x - size / 2, y - size / 2, size, size);
+        
+        ctx.restore();
     }
 }

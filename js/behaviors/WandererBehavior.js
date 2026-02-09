@@ -24,7 +24,29 @@ export default class WandererBehavior extends Behavior {
         const col = pixelToGridCol(entity.x);
         const row = pixelToGridRow(entity.y);
 
-        // CHECK ATTRACTION FIRST
+        // CHECK RAGE FIRST (priority over everything)
+        if (entity.isRaging && entity.ragePhase === 'moving' && entity.rageTarget) {
+            this._moveTowardTarget(entity, dt, grid, entityManager, entity.rageTarget.col, entity.rageTarget.row);
+            return;
+        }
+
+        // If in rage pause phase, don't move
+        if (entity.isRaging && entity.ragePhase === 'paused') {
+            entity.moving = false;
+            // Face the target
+            if (entity.rageTarget) {
+                const dx = entity.rageTarget.col - col;
+                const dy = entity.rageTarget.row - row;
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    entity.direction = dx > 0 ? 'right' : 'left';
+                } else {
+                    entity.direction = dy > 0 ? 'down' : 'up';
+                }
+            }
+            return;
+        }
+
+        // CHECK ATTRACTION SECOND
         const attraction = attractionSystem?.getAttractionTarget(col, row);
         if (attraction) {
             // Move toward the attraction

@@ -26,20 +26,43 @@ export default class SmartBehavior extends Behavior {
         const col = pixelToGridCol(entity.x);
         const row = pixelToGridRow(entity.y);
 
-        // CHECK ATTRACTION FIRST
-        const attraction = attractionSystem?.getAttractionTarget(col, row);
-
-        this.recalcTimer += dt;
-
-        if (this.recalcTimer >= this.recalcInterval || !this.path || this.pathIndex >= this.path.length) {
-            if (attraction) {
-                // Pathfind to attraction instead of player
-                this._recalcPathToTarget(entity, grid, entityManager, col, row, attraction.col, attraction.row);
-            } else {
-                // Original behavior: pathfind to player
-                this._recalcPath(entity, grid, entityManager, player, col, row);
+        // CHECK RAGE FIRST (priority over everything)
+        if (entity.isRaging && entity.ragePhase === 'moving' && entity.rageTarget) {
+            this.recalcTimer += dt;
+            if (this.recalcTimer >= this.recalcInterval || !this.path || this.pathIndex >= this.path.length) {
+                this._recalcPathToTarget(entity, grid, entityManager, col, row, entity.rageTarget.col, entity.rageTarget.row);
+                this.recalcTimer = 0;
             }
-            this.recalcTimer = 0;
+            // Continue to path following code below
+        } else if (entity.isRaging && entity.ragePhase === 'paused') {
+            entity.moving = false;
+            // Face the target
+            if (entity.rageTarget) {
+                const dx = entity.rageTarget.col - col;
+                const dy = entity.rageTarget.row - row;
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    entity.direction = dx > 0 ? 'right' : 'left';
+                } else {
+                    entity.direction = dy > 0 ? 'down' : 'up';
+                }
+            }
+            return;
+        } else {
+            // CHECK ATTRACTION SECOND
+            const attraction = attractionSystem?.getAttractionTarget(col, row);
+
+            this.recalcTimer += dt;
+
+            if (this.recalcTimer >= this.recalcInterval || !this.path || this.pathIndex >= this.path.length) {
+                if (attraction) {
+                    // Pathfind to attraction instead of player
+                    this._recalcPathToTarget(entity, grid, entityManager, col, row, attraction.col, attraction.row);
+                } else {
+                    // Original behavior: pathfind to player
+                    this._recalcPath(entity, grid, entityManager, player, col, row);
+                }
+                this.recalcTimer = 0;
+            }
         }
 
         // Follow path

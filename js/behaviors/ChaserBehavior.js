@@ -24,30 +24,48 @@ export default class ChaserBehavior extends Behavior {
         const col = pixelToGridCol(entity.x);
         const row = pixelToGridRow(entity.y);
 
-        // CHECK ATTRACTION FIRST
-        const attraction = attractionSystem?.getAttractionTarget(col, row);
+        // RAGE PAUSED: stop and face target, return early
+        if (entity.isRaging && entity.ragePhase === 'paused') {
+            entity.moving = false;
+            if (entity.rageTarget) {
+                const dx = entity.rageTarget.col - col;
+                const dy = entity.rageTarget.row - row;
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    entity.direction = dx > 0 ? 'right' : 'left';
+                } else {
+                    entity.direction = dy > 0 ? 'down' : 'up';
+                }
+            }
+            return;
+        }
 
+        // DIRECTION DECISION
         this.decisionTimer += dt;
 
-        // Make a decision at intervals or when blocked
         const nextCol = col + this.currentDir.dx;
         const nextRow = row + this.currentDir.dy;
         const blocked = grid.isSolid(nextCol, nextRow) || this._hasBomb(entityManager, nextCol, nextRow);
 
         if (blocked || this.decisionTimer >= this.decisionInterval) {
-            if (attraction) {
-                // Move toward attraction (priority over player)
-                this._chooseDirectionToTarget(grid, entityManager, col, row, attraction.col, attraction.row);
+            if (entity.isRaging && entity.ragePhase === 'moving' && entity.rageTarget) {
+                // Rage target has priority
+                this._chooseDirectionToTarget(grid, entityManager, col, row, entity.rageTarget.col, entity.rageTarget.row);
             } else {
-                // Original behavior: chase player
-                this._chooseDirection(entity, grid, entityManager, player, col, row);
+                const attraction = attractionSystem?.getAttractionTarget(col, row);
+                if (attraction) {
+                    // Move toward attraction (priority over player)
+                    this._chooseDirectionToTarget(grid, entityManager, col, row, attraction.col, attraction.row);
+                } else {
+                    // Original behavior: chase player
+                    this._chooseDirection(entity, grid, entityManager, player, col, row);
+                }
             }
             this.decisionTimer = 0;
         }
 
         entity.direction = this.currentDir.name;
 
-        // Move
+        // MOVEMENT
         const speed = entity.speed * dt;
         let nx = entity.x;
         let ny = entity.y;
