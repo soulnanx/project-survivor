@@ -9,7 +9,7 @@ Jogo de survival estilo RPG/Roguelike desenvolvido em JavaScript vanilla com spr
 ✅ **Fase 14 Parcialmente Implementada** - Tema apocalíptico com efeitos visuais
 ✅ **Sistema de Atração de Zumbis** - Zumbis são atraídos por explosões de bombas (tática gameplay)
 
-Ver `CONTEXT.md` para contexto completo e próximos passos.
+Ver `CONTEXT.md` para arquitetura e padrões; `docs/specs/README.md` para status das fases e próximos passos.
 
 ## Documentação
 
@@ -33,18 +33,9 @@ Toda a documentação técnica está em `docs/specs/`:
 
 **Para uma nova sessão do Cursor:**
 
-1. Leia `CONTEXT.md` para entender o estado atual
-2. Escolha uma das próximas fases sugeridas
-3. Use o padrão estabelecido nas fases anteriores
-4. Consulte `docs/specs/` para referências
-
-**Exemplo de prompt:**
-```
-Olá! Estou continuando o desenvolvimento do Project Survivor.
-Leia CONTEXT.md e docs/specs/README.md para entender o contexto.
-Quero implementar a Fase 9 (Mais Stats RPG) conforme descrito em CONTEXT.md.
-Crie um plano detalhado e implemente seguindo o padrão das fases anteriores.
-```
+1. Leia `CONTEXT.md` para arquitetura e padrões do código
+2. Leia `docs/specs/README.md` para status e próximas fases
+3. Siga o formato das specs em `docs/specs/` e as regras em `.cursor/rules/`
 
 ## Estrutura
 
@@ -57,7 +48,7 @@ project-survivor/
 │   └── ...
 ├── docs/
 │   └── specs/        # Documentação técnica
-├── CONTEXT.md        # Contexto para continuidade
+├── CONTEXT.md        # Arquitetura e padrões
 └── README.md         # Este arquivo
 ```
 

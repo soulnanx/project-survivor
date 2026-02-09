@@ -1,29 +1,6 @@
 # Contexto do Projeto - Project Survivor
 
-## Status Atual
-
-**Última atualização:** Fase 19 - Tile de Saída (escada) no level - 2026-02-09
-
-### Fases Implementadas ✅
-
-- ✅ **Fase 1**: Sistema de HP do Player (20 HP, dano gradual, morte permanente)
-- ✅ **Fase 2**: Sistema de HP dos Inimigos (Wanderer: 1, Chaser: 2, Smart: 3)
-- ✅ **Fase 3**: Sistema de XP e Levels (ExperienceSystem completo)
-- ✅ **Fase 4**: Power-up de Cura (visual e funcional)
-- ✅ **Fase 5**: UI de RPG (HP bar, XP bar, level display)
-- ✅ **Fase 6**: Novos Sons (levelUp, playerHit, enemyHit, enemyKilled)
-- ✅ **Fase 7**: Novos Efeitos de Partículas (levelUp, XPGain)
-- ✅ **Fase 8**: Sistema de Save/Load (localStorage, Continue Game)
-- ✅ **Fase 9**: Mais Stats RPG (defense, attackPower, critChance)
-- ✅ **Fase 10**: Geração Procedural de Dungeons (seed-based generation)
-- ✅ **Fase 11**: Reestruturação Survivor (HUB, escape, permadeath, remoção de power-ups)
-- ✅ **Fase 12**: Integração de Sprites LPC (Player + Enemies com fallback procedural)
-- ✅ **Fase 14**: Tema Apocalíptico (backgrounds, explosions, UI redesign)
-- ✅ **Sistema de Atração de Zumbis**: Zumbis são atraídos por explosões por 10 segundos
-- ✅ **Fase 15**: Sistema de Ataque Físico (soco, knockback, dano corpo-a-corpo)
-- ✅ **Fase 16**: Sistema de Inventário de Bombas (slots, UI)
-- ✅ **Fase 17**: Sistema de Rage dos Zumbis (rage ao explodir bomba, velocidade, feedback visual)
-- ✅ **Fase 19**: Tile de Saída (escada) no level — visual de saída em (1,1) e parede com abertura em (1,0)
+Documento de **arquitetura e padrões** do código. Para status das fases (implementadas/planejadas), use **`docs/specs/README.md`** como fonte da verdade.
 
 ---
 
@@ -124,91 +101,17 @@ Eventos principais:
 
 ## Documentação
 
-Toda a documentação está em `docs/specs/`:
-
-- `README.md` - Índice geral
-- `01-fase-1-player-hp-system.md` - Fase 1
-- `02-fase-2-enemy-hp-system.md` - Fase 2
-- `03-fase-3-7-completar-sistema-rpg.md` - Fases 3-7
-- `08-fase-8-save-load-system.md` - Fase 8
-
----
-
-## Nova Fase: Bomberman Survivor (Permadeath)
-
-O jogo está evoluindo para um **survival game com permadeath** inspirado em Project Zomboid.
-Spec completa: `docs/specs/11-nova-fase-survivor-system.md`
-
-### Mudanças Fundamentais
-- **Sem vitória:** Sobrevivência infinita, não existe "zerar"
-- **Permadeath:** Morte = perde tudo, personagem deletado
-- **HUB entre dungeons:** Zona segura para preparação
-- **Escape:** Jogador pode fugir da dungeon voltando à entrada
-- **Save agressivo:** Salva ao tomar dano e ao completar dungeon (anti-save-scum)
-- **Cura por recurso:** HP só recupera com itens (drops ou loja)
-- **Sem power-ups clássicos:** Drops são ouro, equipamentos e poções
-- **Inventário limitado:** Slots finitos, trade-off entre itens
-
-### Fases Planejadas
-- ✅ **Fase 11**: Reestruturação do Fluxo (HUB, escape, permadeath) - COMPLETA
-- ✅ **Fase 12**: Integração de Sprites LPC (Player humano, Inimigos zumbis) - COMPLETA
-- ✅ **Fase 13**: Renomeação do Jogo para Project Survivor - COMPLETA
-- ✅ **Fase 14**: Transformação do Cenário Apocalíptico (backgrounds, explosions, UI) - 80% COMPLETA
-- ✅ **Fase 15**: Sistema de Ataque Físico (soco, knockback, dano corpo-a-corpo) - COMPLETA
-- ✅ **Fase 16**: Sistema de Inventário de Bombas - COMPLETA
-- ✅ **Fase 17**: Sistema de Rage dos Zumbis (velocidade, fases, feedback visual) - COMPLETA
-- ⬜ **Fase 18**: Variedade de Dungeons (tipos, tiers, modificadores) - PRIORIDADE MÉDIA
-- ⬜ **Fase 19**: Loja no HUB - PRIORIDADE BAIXA
-- ⬜ **Fase 20+**: Polish e Expansão
+- **Status das fases e próximos passos:** `docs/specs/README.md` (fonte da verdade)
+- **Specs por fase:** `docs/specs/NN-fase-NN-nome.md`
+- **Regras do Cursor:** `.cursor/rules/` (convenções e formato de specs)
 
 ---
 
 ## Como Continuar o Desenvolvimento
 
-### Para uma nova sessão do Cursor:
-
-1. **Ler este arquivo** (`CONTEXT.md`) para entender o estado atual
-
-2. **Revisar a documentação:**
-   ```bash
-   cat docs/specs/README.md
-   ```
-
-3. **Verificar o último commit:**
-   ```bash
-   git log --oneline -1
-   ```
-
-4. **Escolher uma fase** das sugeridas acima
-
-5. **Criar um plano detalhado** usando:
-   - A estrutura dos planos anteriores em `docs/specs/`
-   - O padrão de implementação já estabelecido
-
-6. **Implementar seguindo o padrão:**
-   - Criar/modificar arquivos conforme necessário
-   - Manter consistência com código existente
-   - Adicionar documentação em `docs/specs/`
-   - Fazer commit descritivo
-
-### Exemplo de prompt para nova sessão:
-
-```
-Olá! Estou continuando o desenvolvimento do Bomberman RPG.
-
-Contexto:
-- Já implementamos as Fases 1-10 (HP system, XP/Level, Save/Load, Stats RPG, Geração Procedural)
-- Toda documentação está em docs/specs/
-- Último commit: cb4acea
-
-Quero implementar a [FASE X] conforme descrito em CONTEXT.md.
-
-Por favor:
-1. Leia CONTEXT.md e docs/specs/README.md
-2. Crie um plano detalhado para a Fase X
-3. Implemente seguindo o padrão das fases anteriores
-4. Atualize a documentação
-```
+1. **Arquitetura e padrões:** ler este arquivo (`CONTEXT.md`).
+2. **O que fazer em seguida:** ler `docs/specs/README.md` (fases planejadas e status).
+3. **Implementar:** seguir o formato das specs em `docs/specs/` e as regras em `.cursor/rules/`.
 
 ---
 
@@ -242,7 +145,7 @@ bomberman/
 │   └── ...
 ├── docs/
 │   └── specs/ ✅ (toda documentação)
-└── CONTEXT.md ✅ (este arquivo)
+└── CONTEXT.md   # Arquitetura e padrões (este arquivo)
 ```
 
 ---
@@ -286,6 +189,6 @@ Após implementar qualquer fase:
 
 ## Dúvidas?
 
-- Consulte `docs/specs/` para detalhes de cada fase
-- Veja código das fases anteriores como referência
-- Mantenha consistência com padrões estabelecidos
+- **Status e próximas fases:** `docs/specs/README.md`
+- **Detalhes de cada fase:** specs em `docs/specs/`
+- **Padrões de spec:** `.cursor/rules/spec-format.mdc`
