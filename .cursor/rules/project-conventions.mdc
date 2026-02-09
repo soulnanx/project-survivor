@@ -1,0 +1,11 @@
+---
+description: Convenções gerais do projeto Project Survivor
+alwaysApply: true
+---
+
+# Convenções do Projeto
+
+- **Documentação**: Toda especificação e plano de implementação fica em `docs/specs/`. Índice em `docs/specs/README.md`. Contexto geral em `CONTEXT.md`.
+- **Specs**: Novas fases são documentadas como specs em `docs/specs/` no formato definido na regra "Formato de specs" (aplicada ao editar/criar arquivos em `docs/specs/`). Nunca criar specs na raiz do projeto.
+- **Idioma**: Comentar e documentar em português. Código (nomes de variáveis, funções, commits) pode ser em inglês; mensagens para o usuário e docs em português.
+- **Fases**: Cada feature/fase tem um número (ex.: Fase 19). Ao criar nova spec, usar o próximo número disponível e registrar em `docs/specs/README.md` (lista Estrutura e seção Fases Planejadas).

@@ -17,6 +17,7 @@ Esta pasta contém toda a documentação de especificações e planos de impleme
 - `17-fase-17-zombie-rage-system.md` - Sistema de Rage dos Zumbis (✅ Implementado)
 - `17-fase-17-sugestoes-melhorias.md` - Sugestões detalhadas de melhorias para o sistema de rage
 - `18-fase-18-animacao-slash-ataque-fisico.md` - Animação Slash (sprites) ao apertar F para ataque físico (⬜ Pendente)
+- `19-fase-19-tile-saida-escada.md` - Tile de Saída (escada) no level (⬜ Pendente)
 
 ## Status Geral
 
@@ -44,10 +45,11 @@ O jogo é um **survival game com permadeath** inspirado em Project Zomboid:
 - ⬜ **Fase 16**: Knockback e HP dos Zumbis (10 HP, empurrão ao receber dano físico)
 - ✅ **Fase 17**: Sistema de Rage dos Zumbis (velocidade, fases, feedback visual) - COMPLETA
 - ⬜ **Fase 18**: Animação Slash do Ataque Físico (tecla F exibe sprites da pasta slash)
-- ⬜ **Fase 19**: Sistema de Drops e Inventário (ouro, equipamentos, poções)
-- ⬜ **Fase 20**: Variedade de Dungeons (tipos, modificadores, tiers)
-- ⬜ **Fase 21**: Loja no HUB (cura, equipamentos)
-- ⬜ **Fase 21+**: Polish e Expansão
+- ⬜ **Fase 19**: Tile de Saída (escada) no level — visual de saída em (1,1) e parede acima (1,0)
+- ⬜ **Fase 20**: Sistema de Drops e Inventário (ouro, equipamentos, poções)
+- ⬜ **Fase 21**: Variedade de Dungeons (tipos, modificadores, tiers)
+- ⬜ **Fase 22**: Loja no HUB (cura, equipamentos)
+- ⬜ **Fase 22+**: Polish e Expansão
 
 ## Notas sobre Status
 

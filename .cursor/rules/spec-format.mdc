@@ -1,0 +1,34 @@
+---
+description: Formato e localização das especificações (specs) do projeto
+globs: docs/specs/**/*.md
+alwaysApply: false
+---
+
+# Formato de Specs
+
+Toda spec de fase fica em **`docs/specs/`** com nome **`NN-fase-NN-nome-descritivo.md`** (ex.: `19-fase-19-tile-saida-escada.md`).
+
+## Estrutura obrigatória
+
+1. **Título**: `# Project Survivor - Fase NN: Nome da Fase`
+2. **Contexto** – situação atual e motivo da fase
+3. **Objetivos desta Fase** – lista numerada do que será entregue
+4. **---** (separador)
+5. **Implementação da Fase NN**
+   - **Arquitetura** – onde e como a mudança se encaixa
+   - **Arquivos a Modificar / Criar** – lista dos arquivos impactados
+6. **Mudanças Detalhadas** – por arquivo, o que fazer (com trechos de código quando útil)
+7. **Checklist de Aceitação** – itens `- [ ]` para validar conclusão
+8. **Status**: `## Status: ⬜ Pendente` ou `## Status: ✅ IMPLEMENTADO`
+
+Seções opcionais: **Decisões em aberto**, **Assets utilizados**, **Notas**.
+
+## Ao criar nova spec
+
+- Usar o próximo número de fase (ver `docs/specs/README.md`).
+- Adicionar entrada na seção **Estrutura** do `docs/specs/README.md`.
+- Adicionar linha em **Fases Planejadas** no mesmo README.
+
+## Ao implementar
+
+- Marcar itens do checklist e, ao concluir, alterar status para `✅ IMPLEMENTADO` na spec.
