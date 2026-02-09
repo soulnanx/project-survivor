@@ -4,6 +4,8 @@
 
 O jogo Project Survivor atualmente permite que o jogador coloque bombas sem limitação de quantidade total, apenas limitando o número de bombas simultâneas ativas (`maxBombs`). A **Fase 16** implementa um **sistema de inventário** que limita o número total de bombas disponíveis, criando tensão estratégica e forçando o jogador a gerenciar recursos com cuidado.
 
+**Importante**: Com o sistema de inventário, o jogador pode colocar **quantas bombas quiser simultaneamente**, desde que tenha bombas disponíveis no inventário. O único limite é a quantidade de bombas no inventário (7 iniciais), não há mais limite de bombas simultâneas ativas.
+
 O jogador começa com **7 bombas** no inventário e deve usá-las estrategicamente. O inventário é exibido na parte inferior do canvas, sempre visível durante o jogo, mostrando a quantidade disponível e a tecla de atalho para uso.
 
 ## Objetivos desta Fase
@@ -95,26 +97,25 @@ if ((input.bomb || input.bombKey)) {
         return;
     }
     
-    // Verificar limite de bombas simultâneas
-    if (entity.activeBombs < entity.maxBombs) {
-        const col = pixelToGridCol(entity.x);
-        const row = pixelToGridRow(entity.y);
-        const existing = entityManager.getByType('bomb').find(b => {
-            return pixelToGridCol(b.x) === col && pixelToGridRow(b.y) === row;
-        });
-        if (!existing) {
-            const bomb = new Bomb(
-                gridToPixelX(col),
-                gridToPixelY(row),
-                entity.bombRange,
-                entity
-            );
-            entityManager.add(bomb, 'bombs');
-            entity.activeBombs++;
-            entity.bombInventory--; // Decrementar inventário
-            EventBus.emit('bomb:placed', { bomb });
-            context.soundEngine.play('placeBomb');
-        }
+    // O jogador pode colocar quantas bombas quiser, desde que tenha no inventário
+    // Não há mais limite de bombas simultâneas - apenas verificar se já existe bomba na posição
+    const col = pixelToGridCol(entity.x);
+    const row = pixelToGridRow(entity.y);
+    const existing = entityManager.getByType('bomb').find(b => {
+        return pixelToGridCol(b.x) === col && pixelToGridRow(b.y) === row;
+    });
+    if (!existing) {
+        const bomb = new Bomb(
+            gridToPixelX(col),
+            gridToPixelY(row),
+            entity.bombRange,
+            entity
+        );
+        entityManager.add(bomb, 'bombs');
+        entity.activeBombs++; // Manter rastreamento para compatibilidade, mas não limitar
+        entity.bombInventory--; // Decrementar inventário
+        EventBus.emit('bomb:placed', { bomb });
+        context.soundEngine.play('placeBomb');
     }
 }
 ```
@@ -219,17 +220,18 @@ drawHUD(ctx, { level, player, score, seedString, canEscape }) {
 
 ### Sistema de Inventário
 
-O inventário rastreia bombas disponíveis separadamente de `activeBombs`:
+O inventário rastreia bombas disponíveis e é o **único limite** para colocar bombas:
 - **`bombInventory`**: Quantidade de bombas disponíveis no inventário (decrementa ao usar)
 - **`maxBombInventory`**: Capacidade máxima do inventário (7 inicialmente)
-- **`activeBombs`**: Bombas simultâneas ativas no campo (limite de `maxBombs`)
+- **`activeBombs`**: Mantido apenas para rastreamento/compatibilidade, mas **não limita** a quantidade de bombas que podem ser colocadas
+
+**Importante**: O jogador pode colocar **quantas bombas quiser simultaneamente**, desde que tenha bombas disponíveis no inventário. Não há limite de bombas simultâneas ativas.
 
 ### Validação de Uso
 
 Antes de colocar uma bomba, o sistema verifica:
-1. Se `bombInventory > 0` (tem bombas disponíveis)
-2. Se `activeBombs < maxBombs` (não excedeu limite simultâneo)
-3. Se não existe bomba na mesma posição
+1. Se `bombInventory > 0` (tem bombas disponíveis no inventário)
+2. Se não existe bomba na mesma posição (evitar sobreposição)
 
 Se alguma condição falhar, a bomba não é colocada e um evento é emitido para feedback.
 
