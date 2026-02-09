@@ -1,5 +1,5 @@
 import Behavior from './Behavior.js';
-import { TILE_SIZE, HUD_HEIGHT, DAMAGE_PHYSICAL_ATTACK, PHYSICAL_ATTACK_RANGE, PHYSICAL_ATTACK_COOLDOWN } from '../constants.js';
+import { TILE_SIZE, HUD_HEIGHT, DAMAGE_PHYSICAL_ATTACK, PHYSICAL_ATTACK_RANGE, PHYSICAL_ATTACK_COOLDOWN, SLASH_ANIMATION_DURATION } from '../constants.js';
 import { pixelToGridCol, pixelToGridRow, gridToPixelX, gridToPixelY, dist } from '../utils.js';
 import Bomb from '../entities/Bomb.js';
 import EventBus from '../core/EventBus.js';
@@ -145,7 +145,8 @@ export default class PlayerControlBehavior extends Behavior {
         
         // Reset cooldown
         entity.attackCooldown = PHYSICAL_ATTACK_COOLDOWN;
-        
+        entity.slashAnimTimer = SLASH_ANIMATION_DURATION; // Fase 18: animação slash
+
         // Determinar posição de ataque baseada na direção
         let attackX = entity.x;
         let attackY = entity.y;

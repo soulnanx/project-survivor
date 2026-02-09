@@ -5,6 +5,7 @@ import {
     COLOR_POWERUP_BOMB, COLOR_POWERUP_FLAME, COLOR_POWERUP_SPEED, COLOR_POWERUP_HEALTH,
     POWERUP_BOMB, POWERUP_FLAME, POWERUP_SPEED, POWERUP_HEALTH,
     SPRITE_SIZE, SPRITE_ANIMATION_FPS, SPRITE_IDLE_FRAME, SPRITE_FRAME_COUNT,
+    SLASH_FRAME_COUNT, SLASH_ANIMATION_DURATION,
     ZOMBIE_SPRITE_SIZE, ZOMBIE_ANIMATION_FPS, ZOMBIE_IDLE_FRAME, ZOMBIE_FRAME_COUNT
 } from '../constants.js';
 import { pixelToGridCol, pixelToGridRow } from '../utils.js';
@@ -39,12 +40,22 @@ export default class EntityRenderer {
     _drawPlayerSprite(ctx, player) {
         const { x, y, direction, animTimer, moving } = player;
 
-        // Calculate frame index (1-9)
-        const frameIndex = this._calculateSpriteFrame(animTimer, moving);
-        const sprite = this.spriteLoader.getSprite(direction, frameIndex);
+        // Fase 18: durante animação de slash (ataque F), priorizar sprites slash
+        let sprite = null;
+        if (player.slashAnimTimer > 0) {
+            const elapsed = SLASH_ANIMATION_DURATION - player.slashAnimTimer;
+            const progress = Math.min(1, elapsed / SLASH_ANIMATION_DURATION);
+            const slashFrame = Math.min(SLASH_FRAME_COUNT, 1 + Math.floor(progress * SLASH_FRAME_COUNT));
+            sprite = this.spriteLoader.getSlashSprite(direction, slashFrame);
+        }
+        if (!sprite) {
+            // Walk/idle
+            const frameIndex = this._calculateSpriteFrame(animTimer, moving);
+            sprite = this.spriteLoader.getSprite(direction, frameIndex);
+        }
 
         if (!sprite) {
-            console.warn(`Sprite not found: player_${direction}_${frameIndex}`);
+            console.warn(`Sprite not found: player_${direction}_*`);
             this._drawPlayerProcedural(ctx, player);
             return;
         }

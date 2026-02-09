@@ -4,9 +4,10 @@
  */
 export default class SpriteLoader {
     constructor() {
-        this.sprites = {};  // Map: 'player_down_1' → Image object
+        this.sprites = {};  // Map: 'player_down_1' → Image object, 'player_slash_down_1' → Image
         this.loaded = false;
         this.failed = false;
+        this.slashLoaded = false;  // Fase 18: sprites de slash (ataque F)
         this.loadPromise = null;
     }
 
@@ -44,7 +45,8 @@ export default class SpriteLoader {
                 this.loaded = true;
                 success = true;
                 console.log(`✓ Player sprites loaded (36 frames) from: ${basePath}`);
-                console.log('Loaded sprites keys:', Object.keys(this.sprites).slice(0, 5), '...');
+                // Fase 18: carregar sprites de slash (ataque físico)
+                await this._loadSlashSprites(basePath.replace('/walk', '/slash'));
                 break;
             } catch (error) {
                 console.warn(`⚠ Failed to load sprites from ${basePath}, trying next path...`);
@@ -56,6 +58,26 @@ export default class SpriteLoader {
         if (!success) {
             this.failed = true;
             console.warn('⚠ All sprite paths failed, using procedural fallback');
+        }
+    }
+
+    async _loadSlashSprites(basePath) {
+        const directions = ['down', 'up', 'left', 'right'];
+        const frameCount = 6;
+        const loadPromises = [];
+        for (const dir of directions) {
+            for (let i = 1; i <= frameCount; i++) {
+                const path = `${basePath}/${dir}/${i}.png`;
+                const key = `player_slash_${dir}_${i}`;
+                loadPromises.push(this._loadImage(path, key).catch(() => {})); // não falhar o jogo se slash falhar
+            }
+        }
+        try {
+            await Promise.all(loadPromises);
+            this.slashLoaded = true;
+            console.log(`✓ Player slash sprites loaded (24 frames) from: ${basePath}`);
+        } catch (e) {
+            console.warn('⚠ Slash sprites failed to load, attack will use walk sprite');
         }
     }
 
@@ -86,6 +108,13 @@ export default class SpriteLoader {
     getSprite(direction, frameIndex) {
         const frame = Math.max(1, Math.min(9, frameIndex));
         const key = `player_${direction}_${frame}`;
+        return this.sprites[key] || null;
+    }
+
+    getSlashSprite(direction, frameIndex) {
+        if (!this.slashLoaded) return null;
+        const frame = Math.max(1, Math.min(6, frameIndex));
+        const key = `player_slash_${direction}_${frame}`;
         return this.sprites[key] || null;
     }
 

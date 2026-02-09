@@ -49,6 +49,10 @@ export const DAMAGE_PHYSICAL_ATTACK = 1; // HP de dano do soco
 export const PHYSICAL_ATTACK_RANGE = TILE_SIZE * 0.8; // Alcance do ataque
 export const PHYSICAL_ATTACK_COOLDOWN = 0.5; // Segundos entre ataques
 
+// Slash animation (Fase 18 - visual do ataque físico)
+export const SLASH_FRAME_COUNT = 6;           // 6 frames por direção na pasta slash/
+export const SLASH_ANIMATION_DURATION = 0.4;  // Duração em segundos da animação na tela
+
 // Bomb
 export const BOMB_TIMER = 2.5; // seconds
 export const EXPLOSION_DURATION = 0.5; // seconds

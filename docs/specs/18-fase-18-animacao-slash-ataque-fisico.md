@@ -134,6 +134,6 @@ export const SLASH_ANIMATION_DURATION = 0.4;  // Duração em segundos da anima�
 
 ---
 
-## Status: ⬜ PENDENTE
+## Status: ✅ IMPLEMENTADO
 
-Esta fase está pronta para implementação. Depende da Fase 15 (ataque físico) e dos assets em `assets/sprites/char/standard/slash/`.
+Esta fase foi implementada: ao apertar F, a animação de slash usa os sprites de `assets/sprites/char/standard/slash/` (6 frames por direção).

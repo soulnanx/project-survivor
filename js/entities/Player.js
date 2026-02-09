@@ -38,6 +38,7 @@ export default class Player extends Entity {
 
         // Physical Attack System
         this.attackCooldown = 0; // Timer de cooldown do ataque físico
+        this.slashAnimTimer = 0; // Fase 18: duração restante da animação slash (tecla F)
     }
 
     update(dt, context) {
@@ -46,6 +47,11 @@ export default class Player extends Entity {
         // Atualizar cooldown do ataque físico
         if (this.attackCooldown > 0) {
             this.attackCooldown -= dt;
+        }
+
+        // Fase 18: animação slash (ataque F)
+        if (this.slashAnimTimer > 0) {
+            this.slashAnimTimer -= dt;
         }
 
         if (this.invincible) {
