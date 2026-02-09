@@ -1,6 +1,6 @@
 import {
     CANVAS_WIDTH, CANVAS_HEIGHT, TILE_SIZE, HUD_HEIGHT,
-    STATE_MENU, STATE_HUB, STATE_PLAYING, STATE_PAUSED, STATE_GAME_OVER,
+    STATE_INTRO, STATE_MENU, STATE_HUB, STATE_PLAYING, STATE_PAUSED, STATE_GAME_OVER,
     STATE_LEVEL_COMPLETE, STATE_SEED_INPUT
 } from '../constants.js';
 import { gridToPixelX, gridToPixelY } from '../utils.js';
@@ -51,6 +51,11 @@ export default class Renderer {
         const { state } = renderContext;
 
         ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        if (state === STATE_INTRO) {
+            this.uiRenderer.drawIntro(ctx, renderContext);
+            return;
+        }
 
         if (state === STATE_MENU) {
             this.uiRenderer.drawMenu(ctx, renderContext);

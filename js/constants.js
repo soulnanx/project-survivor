@@ -11,6 +11,7 @@ export const CELL_WALL = 1;
 export const CELL_BRICK = 2;
 
 // Game states
+export const STATE_INTRO = 'INTRO';
 export const STATE_MENU = 'MENU';
 export const STATE_HUB = 'HUB';
 export const STATE_PLAYING = 'PLAYING';
@@ -86,6 +87,9 @@ export const COLOR_POWERUP_BOMB = '#ff4444';
 export const COLOR_POWERUP_FLAME = '#ff8844';
 export const COLOR_POWERUP_SPEED = '#44aaff';
 export const COLOR_POWERUP_HEALTH = '#ff4488';
+
+// Intro screen
+export const INTRO_DURATION = 3.0; // seconds
 
 // Level config
 // MAX_LEVEL removido - não há mais limite de níveis (survival infinito)

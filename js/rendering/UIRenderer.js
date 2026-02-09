@@ -219,6 +219,42 @@ export default class UIRenderer {
         ctx.fillText('[B]', 150, centerY);
     }
 
+    /**
+     * Draw intro screen with placeholder content
+     * @param {CanvasRenderingContext2D} ctx
+     * @param {Object} context - Contains introTimer
+     */
+    drawIntro(ctx, { introTimer }) {
+        // Background preto
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        // Título placeholder (conteúdo temporário)
+        ctx.fillStyle = '#ff8800'; // Laranja apocalíptico
+        ctx.font = 'bold 64px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('PROJECT SURVIVOR', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 40);
+
+        // Subtítulo
+        ctx.fillStyle = '#888888';
+        ctx.font = '24px monospace';
+        ctx.fillText('A Zombie Survival Game', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 + 20);
+
+        // Timer visual (opcional, para debug)
+        ctx.fillStyle = '#444444';
+        ctx.font = '16px monospace';
+        ctx.fillText(`${Math.ceil(introTimer)}s`, CANVAS_WIDTH / 2, CANVAS_HEIGHT - 40);
+
+        // Dica de skip (fade in nos últimos 2 segundos)
+        if (introTimer < 2.5) {
+            const alpha = Math.min(1, (2.5 - introTimer) / 0.5);
+            ctx.fillStyle = `rgba(200, 200, 200, ${alpha})`;
+            ctx.font = '18px monospace';
+            ctx.fillText('Press ENTER or SPACE to skip', CANVAS_WIDTH / 2, CANVAS_HEIGHT - 80);
+        }
+    }
+
     drawMenu(ctx, { menuSelection, highScores, hasSaveGame }) {
         // Background
         ctx.fillStyle = '#111';

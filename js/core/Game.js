@@ -1,7 +1,7 @@
 import {
-    STATE_MENU, STATE_HUB, STATE_PLAYING, STATE_PAUSED, STATE_GAME_OVER,
+    STATE_INTRO, STATE_MENU, STATE_HUB, STATE_PLAYING, STATE_PAUSED, STATE_GAME_OVER,
     STATE_LEVEL_COMPLETE, STATE_SEED_INPUT, CANVAS_WIDTH, CANVAS_HEIGHT,
-    LEVEL_TRANSITION_TIME
+    LEVEL_TRANSITION_TIME, INTRO_DURATION
 } from '../constants.js';
 import Input from './Input.js';
 import EventBus from './EventBus.js';
@@ -44,7 +44,8 @@ export default class Game {
         this.saveSystem = new SaveSystem();
         this.soundEngine = new SoundEngine();
 
-        this.state = STATE_MENU;
+        this.state = STATE_INTRO;
+        this.introTimer = INTRO_DURATION;
         this.level = 1; // Agora representa "dungeons completadas"
         this.player = null;
         this.levelTime = 0;
@@ -138,6 +139,9 @@ export default class Game {
 
     _update(dt) {
         switch (this.state) {
+            case STATE_INTRO:
+                this._updateIntro(dt);
+                break;
             case STATE_MENU:
                 this._updateMenu(dt);
                 break;
@@ -159,6 +163,18 @@ export default class Game {
             case STATE_SEED_INPUT:
                 this._updateSeedInput(dt);
                 break;
+        }
+    }
+
+    _updateIntro(dt) {
+        this.introTimer -= dt;
+
+        // Auto-transition após 3 segundos OU skip com Enter/Space
+        if (this.introTimer <= 0 ||
+            this.input.wasPressed('Enter') ||
+            this.input.wasPressed('Space')) {
+            this.state = STATE_MENU;
+            this.menuSelection = 0;
         }
     }
 
@@ -530,6 +546,7 @@ export default class Game {
             seedInput: this.seedInput,
             customSeed: this.customSeed,
             canEscape: this.state === STATE_PLAYING && this._isPlayerAtEntrance(),
+            introTimer: this.introTimer,
         };
         this.renderer.render(renderContext);
     }
