@@ -13,7 +13,7 @@ export default class Input {
         // Prevent default for game keys
         const gameKeys = [
             'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
-            'Space', 'KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyE', 'KeyF',
+            'Space', 'KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyE', 'KeyF', 'KeyB',
             'KeyP', 'Escape', 'Enter', 'Backspace'
         ];
         if (gameKeys.includes(e.code)) {
@@ -59,6 +59,7 @@ export default class Input {
     get confirm() { return this.wasPressed('Enter') || this.wasPressed('Space'); }
     get escape() { return this.wasPressed('KeyE'); }
     get attack() { return this.wasPressed('KeyF'); }
+    get bombKey() { return this.wasPressed('KeyB'); } // Tecla alternativa para colocar bomba (Fase 16)
 
     /** Call at the end of each frame to clear justPressed */
     endFrame() {

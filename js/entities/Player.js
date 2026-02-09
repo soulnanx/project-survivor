@@ -1,5 +1,5 @@
 import Entity from './Entity.js';
-import { PLAYER_SPEED, PLAYER_MAX_BOMBS, PLAYER_BOMB_RANGE, PLAYER_MAX_HP, PLAYER_START_HP, INVINCIBILITY_TIME_DAMAGE, PLAYER_DEFENSE_START, PLAYER_ATTACK_POWER_START, PLAYER_CRIT_CHANCE_START } from '../constants.js';
+import { PLAYER_SPEED, PLAYER_MAX_BOMBS, PLAYER_BOMB_RANGE, PLAYER_MAX_HP, PLAYER_START_HP, INVINCIBILITY_TIME_DAMAGE, PLAYER_DEFENSE_START, PLAYER_ATTACK_POWER_START, PLAYER_CRIT_CHANCE_START, PLAYER_START_BOMB_INVENTORY, PLAYER_MAX_BOMB_INVENTORY } from '../constants.js';
 
 export default class Player extends Entity {
     constructor(x, y, behavior) {
@@ -10,7 +10,11 @@ export default class Player extends Entity {
         this.speed = PLAYER_SPEED;
         this.maxBombs = PLAYER_MAX_BOMBS;
         this.bombRange = PLAYER_BOMB_RANGE;
-        this.activeBombs = 0;
+        this.activeBombs = 0; // Mantido para rastreamento/compatibilidade, mas não limita quantidade
+
+        // Inventory System (Fase 16)
+        this.bombInventory = PLAYER_START_BOMB_INVENTORY; // Bombas disponíveis no inventário
+        this.maxBombInventory = PLAYER_MAX_BOMB_INVENTORY; // Capacidade máxima do inventário
 
         // HP System
         this.maxHp = PLAYER_MAX_HP;

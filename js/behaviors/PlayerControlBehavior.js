@@ -41,8 +41,17 @@ export default class PlayerControlBehavior extends Behavior {
             this._performPhysicalAttack(entity, context);
         }
 
-        // Place bomb
-        if (input.bomb && entity.activeBombs < entity.maxBombs) {
+        // Place bomb (Fase 16 - Sistema de Inventário)
+        // O jogador pode colocar quantas bombas quiser simultaneamente, limitado apenas pelo inventário
+        if ((input.bomb || input.bombKey)) {
+            // Verificar se tem bombas disponíveis no inventário
+            if (entity.bombInventory <= 0) {
+                // Feedback: sem bombas disponíveis
+                EventBus.emit('inventory:empty', { item: 'bomb' });
+                return;
+            }
+            
+            // Verificar se já existe bomba na mesma posição (evitar sobreposição)
             const col = pixelToGridCol(entity.x);
             const row = pixelToGridRow(entity.y);
             const existing = entityManager.getByType('bomb').find(b => {
@@ -56,7 +65,8 @@ export default class PlayerControlBehavior extends Behavior {
                     entity
                 );
                 entityManager.add(bomb, 'bombs');
-                entity.activeBombs++;
+                entity.activeBombs++; // Rastreamento para compatibilidade (não limita quantidade)
+                entity.bombInventory--; // Decrementar inventário ao usar bomba
                 EventBus.emit('bomb:placed', { bomb });
                 context.soundEngine.play('placeBomb');
             }

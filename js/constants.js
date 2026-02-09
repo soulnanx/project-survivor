@@ -3,7 +3,7 @@ export const COLS = 15;
 export const ROWS = 13;
 export const TILE_SIZE = 48;
 export const CANVAS_WIDTH = COLS * TILE_SIZE;
-export const CANVAS_HEIGHT = ROWS * TILE_SIZE + 48; // +48 for HUD
+export const CANVAS_HEIGHT = ROWS * TILE_SIZE + 48 + 32; // +48 for HUD + 32 for Inventory (Fase 16)
 
 // Cell types
 export const CELL_EMPTY = 0;
@@ -110,6 +110,11 @@ export const SCORE_TIME_BONUS_BASE = 3000;
 
 // HUD
 export const HUD_HEIGHT = 48;
+
+// Inventory System (Fase 16)
+export const INVENTORY_HEIGHT = 32; // Altura da barra de inventário na parte inferior
+export const PLAYER_START_BOMB_INVENTORY = 7; // Quantidade inicial de bombas no inventário
+export const PLAYER_MAX_BOMB_INVENTORY = 7; // Capacidade máxima do inventário de bombas
 
 // Dungeon Generation
 export const DUNGEON_SEED_BASE = 7919; // Número primo para seeds

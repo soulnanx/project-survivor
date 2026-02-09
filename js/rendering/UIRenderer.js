@@ -1,5 +1,5 @@
 import {
-    CANVAS_WIDTH, CANVAS_HEIGHT, HUD_HEIGHT,
+    CANVAS_WIDTH, CANVAS_HEIGHT, HUD_HEIGHT, INVENTORY_HEIGHT,
     STATE_MENU, STATE_PLAYING, STATE_PAUSED, STATE_GAME_OVER,
     STATE_LEVEL_COMPLETE, STATE_HUB
 } from '../constants.js';
@@ -140,6 +140,83 @@ export default class UIRenderer {
             ctx.textBaseline = 'top';
             ctx.fillText('Press E to Escape', CANVAS_WIDTH - 10, 5);
         }
+
+        // Desenhar inventário após o HUD (Fase 16)
+        this.drawInventory(ctx, { player });
+    }
+
+    /**
+     * Renderiza a barra de inventário na parte inferior do canvas (Fase 16)
+     * Exibe quantidade de bombas disponíveis, ícone e tecla de atalho
+     */
+    drawInventory(ctx, { player }) {
+        if (!player) return;
+        
+        const inventoryY = CANVAS_HEIGHT - INVENTORY_HEIGHT;
+        
+        // Background (painel apocalíptico)
+        ctx.fillStyle = 'rgba(20, 20, 20, 0.95)';
+        ctx.fillRect(0, inventoryY, CANVAS_WIDTH, INVENTORY_HEIGHT);
+        
+        // Borda desgastada
+        ctx.strokeStyle = '#5a4a3a';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(0, inventoryY, CANVAS_WIDTH, INVENTORY_HEIGHT);
+        
+        // Linha separadora superior
+        ctx.fillStyle = '#444';
+        ctx.fillRect(0, inventoryY, CANVAS_WIDTH, 2);
+        
+        // Rachaduras no painel (detalhe visual apocalíptico)
+        ctx.strokeStyle = '#3a2a1a';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(15, inventoryY + 5);
+        ctx.lineTo(20, inventoryY + 8);
+        ctx.moveTo(CANVAS_WIDTH - 20, inventoryY + 10);
+        ctx.lineTo(CANVAS_WIDTH - 15, inventoryY + 15);
+        ctx.stroke();
+        
+        const centerY = inventoryY + INVENTORY_HEIGHT / 2;
+        const hasBombs = player.bombInventory > 0;
+        
+        // Ícone de bomba (círculo preto com pavio vermelho quando disponível)
+        const bombIconX = 10;
+        const bombIconY = centerY;
+        const bombIconSize = 16;
+        
+        // Círculo da bomba (opacidade reduzida quando sem bombas)
+        ctx.fillStyle = hasBombs ? '#222' : 'rgba(34, 34, 34, 0.5)';
+        ctx.beginPath();
+        ctx.arc(bombIconX + bombIconSize / 2, bombIconY, bombIconSize / 2, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Borda do ícone
+        ctx.strokeStyle = hasBombs ? '#666' : '#444';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // Pavio da bomba (pequeno retângulo vermelho no topo quando disponível)
+        if (hasBombs) {
+            ctx.fillStyle = '#ff4444';
+            ctx.fillRect(bombIconX + bombIconSize / 2 - 2, bombIconY - bombIconSize / 2 - 2, 4, 4);
+        }
+        
+        // Texto "Bombas:"
+        ctx.fillStyle = '#d0d0a0';
+        ctx.font = 'bold 14px monospace';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Bombas:', 35, centerY);
+        
+        // Quantidade (vermelho quando sem bombas para feedback visual)
+        ctx.fillStyle = hasBombs ? '#d0d0a0' : '#ff4444';
+        ctx.fillText(`${player.bombInventory} / ${player.maxBombInventory}`, 95, centerY);
+        
+        // Tecla de atalho [B]
+        ctx.fillStyle = '#8a8a6a';
+        ctx.font = '12px monospace';
+        ctx.fillText('[B]', 150, centerY);
     }
 
     drawMenu(ctx, { menuSelection, highScores, hasSaveGame }) {
