@@ -14,6 +14,18 @@ export const CELL_BRICK = 2;
 export const EXIT_COL = 1;
 export const EXIT_ROW = 1;
 
+// HUB explorável (Fase 23)
+export const HUB_INTERACT_KEY = 'KeyE';
+export const HUB_SPAWN_COL = 1;
+export const HUB_SPAWN_ROW = 1;
+export const POI_TYPE_INVENTORY = 'inventory';
+export const POI_TYPE_SHOP = 'shop';
+export const POI_TYPE_DUNGEON = 'dungeon';
+export const POI_TYPE_HIGH_SCORES = 'high_scores';
+export const SHOP_HEAL_COST = 10;      // Ouro por cura (placeholder)
+export const SHOP_HEAL_AMOUNT = 5;     // HP recuperados por compra
+export const PLAYER_START_GOLD = 0;
+
 // Game states
 export const STATE_INTRO = 'INTRO';
 export const STATE_MENU = 'MENU';

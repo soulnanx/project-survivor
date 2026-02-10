@@ -103,6 +103,17 @@ export default class BackgroundLayer {
                 debris: '#b0b0b0',
                 blood: '#5a1a1a',
             },
+            // HUB (Fase 23) - zona segura, visual acolhedor
+            hub: {
+                floor: '#6b5b4a',
+                floorAlt: '#5a4a3a',
+                wall: '#8b7355',
+                wallLight: '#9c8465',
+                wallDark: '#5a4a35',
+                crack: '#5a4a35',
+                debris: '#7a6a55',
+                blood: '#4a1a1a',
+            },
         };
 
         const palette = themes[theme] || themes.ruins;

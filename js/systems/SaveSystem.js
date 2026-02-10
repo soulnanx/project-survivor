@@ -29,6 +29,7 @@ export default class SaveSystem {
                 defense: player.defense,
                 attackPower: player.attackPower,
                 critChance: player.critChance,
+                gold: player.gold != null ? player.gold : 0,
             },
             game: {
                 dungeonLevel: level,
@@ -116,6 +117,7 @@ export default class SaveSystem {
         player.defense = saved.defense || 0;
         player.attackPower = saved.attackPower || 1.0;
         player.critChance = saved.critChance || 0;
+        player.gold = saved.gold != null ? saved.gold : 0;
 
         // Garantir que HP não ultrapasse maxHp
         player.hp = Math.min(player.hp, player.maxHp);

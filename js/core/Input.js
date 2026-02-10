@@ -13,7 +13,7 @@ export default class Input {
         // Prevent default for game keys
         const gameKeys = [
             'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
-            'Space', 'KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyE', 'KeyF', 'KeyB',
+            'Space', 'KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyE', 'KeyF', 'KeyB', 'KeyH',
             'KeyP', 'Escape', 'Enter', 'Backspace'
         ];
         if (gameKeys.includes(e.code)) {

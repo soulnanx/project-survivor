@@ -3,6 +3,12 @@ import {
     STATE_INTRO, STATE_MENU, STATE_HUB, STATE_PLAYING, STATE_PAUSED, STATE_GAME_OVER,
     STATE_LEVEL_COMPLETE, STATE_SEED_INPUT
 } from '../constants.js';
+import {
+    POI_TYPE_INVENTORY,
+    POI_TYPE_SHOP,
+    POI_TYPE_DUNGEON,
+    POI_TYPE_HIGH_SCORES,
+} from '../constants.js';
 import { gridToPixelX, gridToPixelY } from '../utils.js';
 import BackgroundLayer from './BackgroundLayer.js';
 import EntityRenderer from './EntityRenderer.js';
@@ -63,6 +69,9 @@ export default class Renderer {
         }
 
         if (state === STATE_HUB) {
+            this.backgroundLayer.draw(ctx);
+            this._drawHubPOIMarkers(ctx, renderContext.hubPOIs);
+            this._drawEntities(ctx, renderContext);
             this.uiRenderer.drawHub(ctx, renderContext);
             return;
         }
@@ -89,6 +98,65 @@ export default class Renderer {
             case STATE_LEVEL_COMPLETE:
                 this.uiRenderer.drawLevelComplete(ctx, renderContext);
                 break;
+        }
+    }
+
+    /**
+     * Desenha indicadores visuais nos POIs do HUB (Fase 23).
+     * Cada tipo tem uma placa/ícone no chão para o jogador identificar onde interagir.
+     */
+    _drawHubPOIMarkers(ctx, hubPOIs) {
+        if (!hubPOIs || hubPOIs.length === 0) return;
+
+        const size = TILE_SIZE * 0.5; // metade da tile
+        const labels = {
+            [POI_TYPE_INVENTORY]: { text: 'I', desc: 'Inventário', color: '#6b8cce', bg: 'rgba(60,80,120,0.85)' },
+            [POI_TYPE_SHOP]: { text: '$', desc: 'Loja', color: '#e8c040', bg: 'rgba(120,90,40,0.85)' },
+            [POI_TYPE_DUNGEON]: { text: '↓', desc: 'Dungeon', color: '#c45a4a', bg: 'rgba(100,50,45,0.85)' },
+            [POI_TYPE_HIGH_SCORES]: { text: '★', desc: 'Recordes', color: '#c9a227', bg: 'rgba(90,75,40,0.85)' },
+        };
+
+        for (const poi of hubPOIs) {
+            const x = gridToPixelX(poi.col);
+            const y = gridToPixelY(poi.row);
+            const cfg = labels[poi.type] || { text: '?', desc: '', color: '#888', bg: 'rgba(50,50,50,0.85)' };
+
+            // Placa no chão (retângulo arredondado)
+            const w = size;
+            const h = size * 0.7;
+            const rx = 6;
+            ctx.fillStyle = cfg.bg;
+            ctx.strokeStyle = cfg.color;
+            ctx.lineWidth = 2;
+            roundRect(ctx, x - w / 2, y - h / 2 - 4, w, h, rx);
+            ctx.fill();
+            ctx.stroke();
+
+            // Ícone/símbolo
+            ctx.fillStyle = cfg.color;
+            ctx.font = 'bold 22px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(cfg.text, x, y - 4);
+
+            // Etiqueta abaixo da placa (nome do local)
+            ctx.fillStyle = '#e8e0d0';
+            ctx.font = '11px sans-serif';
+            ctx.fillText(cfg.desc, x, y + h / 2 + 6);
+        }
+
+        function roundRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
         }
     }
 

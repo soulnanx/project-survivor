@@ -1,7 +1,9 @@
 import {
     CANVAS_WIDTH, CANVAS_HEIGHT, HUD_HEIGHT, INVENTORY_HEIGHT,
     STATE_MENU, STATE_PLAYING, STATE_PAUSED, STATE_GAME_OVER,
-    STATE_LEVEL_COMPLETE, STATE_HUB
+    STATE_LEVEL_COMPLETE, STATE_HUB,
+    POI_TYPE_INVENTORY, POI_TYPE_SHOP, POI_TYPE_DUNGEON, POI_TYPE_HIGH_SCORES,
+    SHOP_HEAL_COST, SHOP_HEAL_AMOUNT,
 } from '../constants.js';
 import { XP_TABLE_EXPORT as XP_TABLE } from '../systems/ExperienceSystem.js';
 
@@ -448,114 +450,146 @@ export default class UIRenderer {
         ctx.fillText(`Dungeon Complete!`, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
     }
 
-    drawHub(ctx, { player, dungeonsCompleted, hubSelection }) {
-        // Background
-        ctx.fillStyle = '#111';
-        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    drawHub(ctx, renderContext) {
+        const { player, dungeonsCompleted, hubSubState, hubNearPOI, hubDungeonConfirmSelection, highScores } = renderContext;
 
-        // Title
-        ctx.fillStyle = '#ff8800';
-        ctx.font = 'bold 36px sans-serif';
+        // HUD do HUB (barra superior) — sempre visível quando não está em overlay
+        ctx.fillStyle = 'rgba(40, 35, 30, 0.9)';
+        ctx.fillRect(0, 0, CANVAS_WIDTH, HUD_HEIGHT);
+        ctx.strokeStyle = '#8b7355';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(0, 0, CANVAS_WIDTH, HUD_HEIGHT);
+
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('HUB', CANVAS_WIDTH / 2, 50);
-
-        // Player stats section
-        const statsY = 120;
-        ctx.fillStyle = '#aaa';
-        ctx.font = 'bold 20px sans-serif';
-        ctx.fillText('Character Stats', CANVAS_WIDTH / 2, statsY);
-
         if (player) {
-            // Level
-            ctx.fillStyle = '#4af';
-            ctx.font = 'bold 24px sans-serif';
-            ctx.fillText(`Level ${player.level}`, CANVAS_WIDTH / 2, statsY + 35);
-
-            // HP
-            ctx.fillStyle = '#fff';
-            ctx.font = '18px sans-serif';
-            const hpPercent = player.hp / player.maxHp;
-            let hpColor = '#4f4';
-            if (hpPercent <= 0.25) hpColor = '#f44';
-            else if (hpPercent <= 0.5) hpColor = '#fa0';
-            ctx.fillStyle = hpColor;
-            ctx.fillText(`HP: ${player.hp} / ${player.maxHp}`, CANVAS_WIDTH / 2, statsY + 60);
-
-            // XP Bar
-            if (player.level < 20) { // Mostrar XP até level 20
-                const xpBarY = statsY + 90;
-                const xpBarWidth = 300;
-                const xpBarHeight = 12;
-                const xpBarX = (CANVAS_WIDTH - xpBarWidth) / 2;
-
-                const xpNeeded = XP_TABLE[player.level] || 9999;
-                const xpPrevLevel = XP_TABLE[player.level - 1] || 0;
-                const xpProgress = Math.max(0, Math.min(1, 
-                    (player.xp - xpPrevLevel) / (xpNeeded - xpPrevLevel)
-                ));
-
-                // Background
-                ctx.fillStyle = '#333';
-                ctx.fillRect(xpBarX, xpBarY, xpBarWidth, xpBarHeight);
-
-                // XP progress
-                ctx.fillStyle = '#4af';
-                ctx.fillRect(xpBarX, xpBarY, xpBarWidth * xpProgress, xpBarHeight);
-
-                // Border
-                ctx.strokeStyle = '#fff';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(xpBarX, xpBarY, xpBarWidth, xpBarHeight);
-
-                // XP text
-                ctx.fillStyle = '#fff';
-                ctx.font = '12px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText(`${player.xp - xpPrevLevel} / ${xpNeeded - xpPrevLevel} XP`, CANVAS_WIDTH / 2, xpBarY + xpBarHeight + 18);
-            }
-
-            // RPG Stats
-            if (player.level > 1 || player.defense > 0 || player.attackPower > 1.0 || player.critChance > 0) {
-                ctx.fillStyle = '#888';
-                ctx.font = '14px sans-serif';
-                ctx.textAlign = 'center';
-                const statsTextY = statsY + (player.level < 20 ? 140 : 100);
-                ctx.fillText(`DEF: ${player.defense}% | ATK: ${player.attackPower.toFixed(1)}x | CRIT: ${player.critChance}%`, CANVAS_WIDTH / 2, statsTextY);
-            }
+            ctx.fillStyle = '#c4a574';
+            ctx.font = 'bold 16px sans-serif';
+            ctx.fillText(`HP: ${player.hp}/${player.maxHp}`, 80, HUD_HEIGHT / 2);
+            ctx.fillStyle = '#ff0';
+            ctx.fillText(`Gold: ${player.gold != null ? player.gold : 0}`, 200, HUD_HEIGHT / 2);
+            ctx.fillStyle = '#888';
+            ctx.fillText(`Dungeons: ${dungeonsCompleted || 0}`, 320, HUD_HEIGHT / 2);
         }
 
-        // Dungeons completed
-        ctx.fillStyle = '#888';
-        ctx.font = '16px sans-serif';
-        ctx.fillText(`Dungeons Completed: ${dungeonsCompleted || 0}`, CANVAS_WIDTH / 2, statsY + (player && player.level < 20 ? 180 : 140));
+        // Overlays de sub-tela
+        if (hubSubState === 'inventory') {
+            this._drawHubInventoryOverlay(ctx, { player });
+            return;
+        }
+        if (hubSubState === 'shop') {
+            this._drawHubShopOverlay(ctx, { player });
+            return;
+        }
+        if (hubSubState === 'dungeon_confirm') {
+            this._drawHubDungeonConfirmOverlay(ctx, { hubDungeonConfirmSelection });
+            return;
+        }
+        if (hubSubState === 'high_scores') {
+            this._drawHubHighScoresOverlay(ctx, { highScores });
+            return;
+        }
 
-        // Gold (preparação para Fase 13)
+        // Indicador de POI quando perto (E - Interagir)
+        if (hubNearPOI) {
+            const labels = {
+                [POI_TYPE_INVENTORY]: 'Inventário',
+                [POI_TYPE_SHOP]: 'Loja',
+                [POI_TYPE_DUNGEON]: 'Entrada da Dungeon',
+                [POI_TYPE_HIGH_SCORES]: 'High Scores',
+            };
+            const label = labels[hubNearPOI.type] || hubNearPOI.type;
+            ctx.fillStyle = 'rgba(0,0,0,0.7)';
+            ctx.fillRect(CANVAS_WIDTH / 2 - 120, CANVAS_HEIGHT - 50, 240, 28);
+            ctx.fillStyle = '#ff8800';
+            ctx.font = 'bold 16px sans-serif';
+            ctx.fillText(`E - ${label}`, CANVAS_WIDTH / 2, CANVAS_HEIGHT - 36);
+        }
+
+        // Instruções
+        ctx.fillStyle = '#6b5b4a';
+        ctx.font = '14px sans-serif';
+        ctx.fillText('WASD - Andar | E - Interagir | H - High Scores', CANVAS_WIDTH / 2, CANVAS_HEIGHT - 12);
+    }
+
+    _drawHubInventoryOverlay(ctx, { player }) {
+        ctx.fillStyle = 'rgba(20, 18, 15, 0.92)';
+        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        ctx.fillStyle = '#c4a574';
+        ctx.font = 'bold 28px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Inventário', CANVAS_WIDTH / 2, 60);
+        if (player) {
+            ctx.fillStyle = '#aaa';
+            ctx.font = '18px sans-serif';
+            ctx.fillText(`Bombas: ${player.bombInventory} / ${player.maxBombInventory}`, CANVAS_WIDTH / 2, 120);
+        }
+        ctx.fillStyle = '#666';
+        ctx.font = '14px sans-serif';
+        ctx.fillText('Escape - Fechar', CANVAS_WIDTH / 2, CANVAS_HEIGHT - 30);
+    }
+
+    _drawHubShopOverlay(ctx, { player }) {
+        ctx.fillStyle = 'rgba(20, 18, 15, 0.92)';
+        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        ctx.fillStyle = '#c4a574';
+        ctx.font = 'bold 28px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Loja', CANVAS_WIDTH / 2, 60);
         ctx.fillStyle = '#ff0';
         ctx.font = '16px sans-serif';
-        ctx.fillText(`Gold: ${0}`, CANVAS_WIDTH / 2, statsY + (player && player.level < 20 ? 210 : 170));
+        ctx.fillText(`Ouro: ${player ? (player.gold != null ? player.gold : 0) : 0}`, CANVAS_WIDTH / 2, 100);
 
-        // Menu options
-        const menuY = 380;
-        const options = ['Enter Dungeon', 'High Scores'];
-        const selectedIndex = hubSelection || 0;
+        const canBuy = player && (player.gold != null ? player.gold : 0) >= SHOP_HEAL_COST && player.hp < player.maxHp;
+        ctx.fillStyle = canBuy ? '#4f4' : '#666';
+        ctx.font = '18px sans-serif';
+        ctx.fillText(`Comprar cura (+${SHOP_HEAL_AMOUNT} HP) - ${SHOP_HEAL_COST} ouro`, CANVAS_WIDTH / 2, 160);
+        ctx.fillText('Enter - Comprar', CANVAS_WIDTH / 2, 200);
 
-        for (let i = 0; i < options.length; i++) {
-            const y = menuY + i * 50;
-            const selected = i === selectedIndex;
-
-            ctx.fillStyle = selected ? '#ff8800' : '#666';
-            ctx.font = selected ? 'bold 24px sans-serif' : '22px sans-serif';
-            ctx.fillText(options[i], CANVAS_WIDTH / 2, y);
-
-            if (selected) {
-                ctx.fillText('>', CANVAS_WIDTH / 2 - 120, y);
-            }
-        }
-
-        // Instructions
-        ctx.fillStyle = '#555';
+        ctx.fillStyle = '#666';
         ctx.font = '14px sans-serif';
-        ctx.fillText('Arrow Keys / WASD - Navigate | Enter - Select', CANVAS_WIDTH / 2, CANVAS_HEIGHT - 30);
+        ctx.fillText('Escape - Fechar', CANVAS_WIDTH / 2, CANVAS_HEIGHT - 30);
+    }
+
+    _drawHubDungeonConfirmOverlay(ctx, { hubDungeonConfirmSelection }) {
+        ctx.fillStyle = 'rgba(20, 18, 15, 0.85)';
+        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        ctx.fillStyle = '#c4a574';
+        ctx.font = 'bold 24px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Entrar na dungeon?', CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2 - 40);
+        const options = ['Sim', 'Não'];
+        for (let i = 0; i < options.length; i++) {
+            const y = CANVAS_HEIGHT / 2 + i * 36;
+            const selected = i === (hubDungeonConfirmSelection || 0);
+            ctx.fillStyle = selected ? '#ff8800' : '#888';
+            ctx.font = selected ? 'bold 20px sans-serif' : '18px sans-serif';
+            ctx.fillText(options[i], CANVAS_WIDTH / 2, y);
+            if (selected) ctx.fillText('>', CANVAS_WIDTH / 2 - 80, y);
+        }
+        ctx.fillStyle = '#666';
+        ctx.font = '14px sans-serif';
+        ctx.fillText('Enter - Confirmar | Escape - Cancelar', CANVAS_WIDTH / 2, CANVAS_HEIGHT - 30);
+    }
+
+    _drawHubHighScoresOverlay(ctx, { highScores }) {
+        ctx.fillStyle = 'rgba(20, 18, 15, 0.92)';
+        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        ctx.fillStyle = '#c4a574';
+        ctx.font = 'bold 28px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('High Scores', CANVAS_WIDTH / 2, 50);
+        ctx.fillStyle = '#888';
+        ctx.font = '14px sans-serif';
+        const scores = highScores || [];
+        const maxShow = 10;
+        for (let i = 0; i < Math.min(scores.length, maxShow); i++) {
+            const s = scores[i];
+            ctx.fillText(`${i + 1}. ${s.score || 0} pts - ${s.date || '-'}`, CANVAS_WIDTH / 2, 100 + i * 24);
+        }
+        if (scores.length === 0) {
+            ctx.fillText('Nenhum recorde ainda.', CANVAS_WIDTH / 2, 120);
+        }
+        ctx.fillText('Escape - Fechar', CANVAS_WIDTH / 2, CANVAS_HEIGHT - 30);
     }
 }

@@ -97,6 +97,24 @@ Eventos principais:
   - `_drawZombieSprite()` / `_drawZombieProcedural()` para inimigos
   - Cálculo de frame baseado em `animTimer` e `moving`
 
+### HUB explorável (Fase 23)
+
+- **HubLevelGenerator** (`js/world/HubLevelGenerator.js`)
+  - Gera o mapa do HUB (grid estático: bordas de parede, interior vazio)
+  - Retorna lista de POIs: Inventário, Loja, Entrada da dungeon, High Scores
+  - Spawn do jogador em (1, 1)
+
+- **Game.js – estado STATE_HUB**
+  - `_loadHubLevel()`: carrega grid e POIs, posiciona o player, tema `hub` no BackgroundLayer
+  - `_updateHubMovement(dt)`: movimento WASD com colisão só no grid (sem bombas/inimigos)
+  - Após o movimento, atualiza `player.animTimer` para a animação de sprites funcionar (direção e frames de caminhada)
+  - Sub-estados: inventory, shop, dungeon_confirm, high_scores (tecla E nos POIs; H para High Scores em qualquer lugar)
+
+- **Renderer.js**
+  - No HUB: desenha background, `_drawHubPOIMarkers()` (placas com ícone e etiqueta em cada POI), entidades (player), depois HUD/overlays
+
+- **Player:** campo `gold` (persistido no SaveSystem) para a loja no HUB (comprar cura por ouro).
+
 ---
 
 ## Documentação
@@ -140,6 +158,7 @@ bomberman/
 │   │   └── ...
 │   ├── world/
 │   │   ├── DungeonGenerator.js ✅ (geração procedural)
+│   │   ├── HubLevelGenerator.js ✅ (Fase 23 – mapa e POIs do HUB)
 │   │   ├── MazeGenerator.js ✅ (legado, mantido para compatibilidade)
 │   │   └── ...
 │   └── ...

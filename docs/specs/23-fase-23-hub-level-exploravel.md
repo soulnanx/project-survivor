@@ -97,14 +97,21 @@ Garantir que o spawn do jogador (ex.: (1,1) ou centro) seja célula vazia e que 
 
 ## Checklist de Aceitação
 
-- [ ] Ao sair do menu (New Game/Continue), o jogador entra em um level do HUB com grid visível e pode andar com WASD/setas.
-- [ ] Existe pelo menos um POI "Inventário": ao chegar perto e apertar E (ou tecla definida), abre interface de inventário (ou equivalente).
-- [ ] Existe pelo menos um POI "Loja": ao chegar perto e apertar E, abre interface de loja (cura); pode ser placeholder (comprar cura por ouro).
-- [ ] Existe um POI "Entrada da dungeon": ao chegar perto e apertar E, aparece confirmação "Entrar na dungeon?"; ao confirmar, o jogo chama _enterDungeon() e carrega a dungeon; ao cancelar, volta ao HUB.
-- [ ] Ao escapar ou completar a dungeon, o jogador retorna ao level do HUB (não à tela de menu antiga).
-- [ ] Save automático ao entrar no HUB é mantido.
-- [ ] High Scores continua acessível (por POI ou tecla no HUB).
+- [x] Ao sair do menu (New Game/Continue), o jogador entra em um level do HUB com grid visível e pode andar com WASD/setas.
+- [x] Existe pelo menos um POI "Inventário": ao chegar perto e apertar E (ou tecla definida), abre interface de inventário (ou equivalente).
+- [x] Existe pelo menos um POI "Loja": ao chegar perto e apertar E, abre interface de loja (cura); pode ser placeholder (comprar cura por ouro).
+- [x] Existe um POI "Entrada da dungeon": ao chegar perto e apertar E, aparece confirmação "Entrar na dungeon?"; ao confirmar, o jogo chama _enterDungeon() e carrega a dungeon; ao cancelar, volta ao HUB.
+- [x] Ao escapar ou completar a dungeon, o jogador retorna ao level do HUB (não à tela de menu antiga).
+- [x] Save automático ao entrar no HUB é mantido.
+- [x] High Scores continua acessível (por POI ou tecla no HUB).
 
 ---
 
-## Status: ⬜ Pendente
+## Notas de implementação
+
+- **Indicadores visuais dos POIs:** No `Renderer.js`, método `_drawHubPOIMarkers()` desenha uma placa no chão em cada POI (Inventário, Loja, Dungeon, Recordes) com ícone e etiqueta, para o jogador identificar onde interagir sem depender só do "E - Interagir" ao se aproximar.
+- **Animação do sprite no HUB:** O movimento no HUB é feito em `_updateHubMovement()` sem chamar o `PlayerControlBehavior`. Para os sprites do jogador (direção e animação de caminhada) atualizarem corretamente, após o movimento o jogo atualiza apenas o `animTimer` do player: `if (player.moving) player.animTimer += dt; else player.animTimer = 0;`.
+
+---
+
+## Status: ✅ IMPLEMENTADO

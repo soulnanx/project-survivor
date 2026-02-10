@@ -8,7 +8,13 @@ import EventBus from './EventBus.js';
 import EntityManager from './EntityManager.js';
 import Grid from '../world/Grid.js';
 import DungeonGenerator from '../world/DungeonGenerator.js';
-import { DUNGEON_SEED_BASE, DUNGEON_SEED_OFFSET, EXIT_COL, EXIT_ROW } from '../constants.js';
+import HubLevelGenerator from '../world/HubLevelGenerator.js';
+import {
+    DUNGEON_SEED_BASE, DUNGEON_SEED_OFFSET, EXIT_COL, EXIT_ROW,
+    HUB_SPAWN_COL, HUB_SPAWN_ROW, HUB_INTERACT_KEY,
+    POI_TYPE_INVENTORY, POI_TYPE_SHOP, POI_TYPE_DUNGEON, POI_TYPE_HIGH_SCORES,
+    SHOP_HEAL_COST, SHOP_HEAL_AMOUNT, TILE_SIZE, HUD_HEIGHT,
+} from '../constants.js';
 import Renderer from '../rendering/Renderer.js';
 import CollisionSystem from '../systems/CollisionSystem.js';
 import BombSystem from '../systems/BombSystem.js';
@@ -63,6 +69,11 @@ export default class Game {
         this.survivalTime = 0; // Tempo total de sobrevivência
         this.dungeonStartTime = 0; // Tempo de início da dungeon atual
         this.currentDungeonDifficulty = 1; // Dificuldade da dungeon atual
+
+        // HUB explorável (Fase 23)
+        this.hubPOIs = [];
+        this.hubSubState = null; // null | 'inventory' | 'shop' | 'dungeon_confirm' | 'high_scores'
+        this.hubDungeonConfirmSelection = 0; // 0 = Sim, 1 = Não
 
         this._setupEvents();
     }
@@ -200,22 +211,96 @@ export default class Game {
     }
 
     _updateHub(dt) {
-        const maxHubItems = 2; // Enter Dungeon, High Scores
-        
-        if (this.input.wasPressed('ArrowUp') || this.input.wasPressed('KeyW')) {
-            this.hubSelection = (this.hubSelection + maxHubItems - 1) % maxHubItems;
-            this.soundEngine.play('menuSelect');
-        }
-        if (this.input.wasPressed('ArrowDown') || this.input.wasPressed('KeyS')) {
-            this.hubSelection = (this.hubSelection + 1) % maxHubItems;
-            this.soundEngine.play('menuSelect');
-        }
-        if (this.input.wasPressed('Enter') || this.input.wasPressed('Space')) {
-            if (this.hubSelection === 0) {
-                // Enter Dungeon
-                this._enterDungeon();
+        // Sub-telas: processar apenas input da tela e Escape para fechar
+        if (this.hubSubState === 'inventory') {
+            if (this.input.wasPressed('Escape')) {
+                this.hubSubState = null;
+                this.soundEngine.play('menuSelect');
             }
-            // High scores é apenas visualização
+            return;
+        }
+        if (this.hubSubState === 'shop') {
+            if (this.input.wasPressed('Escape')) {
+                this.hubSubState = null;
+                this.soundEngine.play('menuSelect');
+            }
+            if (this.input.wasPressed('Enter') || this.input.wasPressed('Space')) {
+                const gold = this.player.gold != null ? this.player.gold : 0;
+                if (gold >= SHOP_HEAL_COST && this.player.hp < this.player.maxHp) {
+                    this.player.gold = gold - SHOP_HEAL_COST;
+                    this.player.hp = Math.min(this.player.maxHp, this.player.hp + SHOP_HEAL_AMOUNT);
+                    this.soundEngine.play('powerup');
+                }
+            }
+            return;
+        }
+        if (this.hubSubState === 'dungeon_confirm') {
+            if (this.input.wasPressed('ArrowUp') || this.input.wasPressed('KeyW')) {
+                this.hubDungeonConfirmSelection = 0;
+                this.soundEngine.play('menuSelect');
+            }
+            if (this.input.wasPressed('ArrowDown') || this.input.wasPressed('KeyS')) {
+                this.hubDungeonConfirmSelection = 1;
+                this.soundEngine.play('menuSelect');
+            }
+            if (this.input.wasPressed('Enter') || this.input.wasPressed('Space')) {
+                if (this.hubDungeonConfirmSelection === 0) {
+                    this.hubSubState = null;
+                    this._enterDungeon();
+                } else {
+                    this.hubSubState = null;
+                    this.hubDungeonConfirmSelection = 0;
+                    this.soundEngine.play('menuSelect');
+                }
+            }
+            if (this.input.wasPressed('Escape')) {
+                this.hubSubState = null;
+                this.hubDungeonConfirmSelection = 0;
+                this.soundEngine.play('menuSelect');
+            }
+            return;
+        }
+        if (this.hubSubState === 'high_scores') {
+            if (this.input.wasPressed('Escape')) {
+                this.hubSubState = null;
+                this.soundEngine.play('menuSelect');
+            }
+            return;
+        }
+
+        // High Scores por tecla H em qualquer lugar do HUB
+        if (this.input.wasPressed('KeyH')) {
+            this.hubSubState = 'high_scores';
+            this.soundEngine.play('menuSelect');
+            return;
+        }
+
+        // Interação com POI (tecla E)
+        const nearPOI = this._getHubPOINearPlayer();
+        if (nearPOI && this.input.wasPressed(HUB_INTERACT_KEY)) {
+            this.soundEngine.play('menuSelect');
+            if (nearPOI.type === POI_TYPE_INVENTORY) {
+                this.hubSubState = 'inventory';
+            } else if (nearPOI.type === POI_TYPE_SHOP) {
+                this.hubSubState = 'shop';
+            } else if (nearPOI.type === POI_TYPE_DUNGEON) {
+                this.hubSubState = 'dungeon_confirm';
+                this.hubDungeonConfirmSelection = 0;
+            } else if (nearPOI.type === POI_TYPE_HIGH_SCORES) {
+                this.hubSubState = 'high_scores';
+            }
+            return;
+        }
+
+        // Movimento no level do HUB
+        this._updateHubMovement(dt);
+        // Atualizar apenas animTimer do jogador para os sprites de direção/anda atualizarem (sem chamar o behavior para não duplicar movimento nem colocar bombas)
+        if (this.player) {
+            if (this.player.moving) {
+                this.player.animTimer += dt;
+            } else {
+                this.player.animTimer = 0;
+            }
         }
     }
 
@@ -368,8 +453,10 @@ export default class Game {
 
     _enterHub() {
         this.state = STATE_HUB;
-        this.hubSelection = 0;
-        
+        this.hubSubState = null;
+        this.hubDungeonConfirmSelection = 0;
+        this._loadHubLevel();
+
         // Save automático ao entrar no HUB (estado seguro)
         if (this.player) {
             this.saveSystem.save({
@@ -382,6 +469,98 @@ export default class Game {
             });
             this.hasSaveGame = true;
         }
+    }
+
+    _loadHubLevel() {
+        this.entityManager.clear();
+        this.grid.clear();
+        this.renderer.particleSystem.clear();
+
+        const { pois } = HubLevelGenerator.generate(this.grid);
+        this.hubPOIs = pois;
+
+        this.renderer.backgroundLayer.rebuild(this.grid, 'hub', 0);
+
+        const spawnX = gridToPixelX(HUB_SPAWN_COL);
+        const spawnY = gridToPixelY(HUB_SPAWN_ROW);
+        if (!this.player) {
+            this.player = new Player(spawnX, spawnY, new PlayerControlBehavior());
+        } else {
+            this.player.x = spawnX;
+            this.player.y = spawnY;
+        }
+        this.entityManager.add(this.player, 'player');
+    }
+
+    /** Retorna o POI na célula do jogador ou em célula adjacente (para interação). */
+    _getHubPOINearPlayer() {
+        if (!this.player || !this.hubPOIs.length) return null;
+        const pc = pixelToGridCol(this.player.x);
+        const pr = pixelToGridRow(this.player.y);
+        for (const poi of this.hubPOIs) {
+            const dist = Math.abs(poi.col - pc) + Math.abs(poi.row - pr);
+            if (dist <= 1) return poi;
+        }
+        return null;
+    }
+
+    /** Movimento do jogador no HUB (apenas colisão com grid, sem bombas). */
+    _updateHubMovement(dt) {
+        if (!this.player) return;
+        let dx = 0, dy = 0;
+        if (this.input.left) dx = -1;
+        else if (this.input.right) dx = 1;
+        if (this.input.up) dy = -1;
+        else if (this.input.down) dy = 1;
+        if (dx !== 0 && dy !== 0) dy = 0;
+
+        this.player.moving = dx !== 0 || dy !== 0;
+        if (dx !== 0) this.player.direction = dx < 0 ? 'left' : 'right';
+        else if (dy !== 0) this.player.direction = dy < 0 ? 'up' : 'down';
+
+        if (dx === 0 && dy === 0) return;
+
+        const halfTile = TILE_SIZE / 2;
+        const margin = 3;
+        const entityHalf = halfTile - margin;
+        let nx = this.player.x + dx * this.player.speed * dt;
+        let ny = this.player.y + dy * this.player.speed * dt;
+        const ox = this.player.x;
+        const oy = this.player.y;
+
+        if (dx !== 0) {
+            const edgeX = nx + dx * entityHalf;
+            const col = pixelToGridCol(edgeX);
+            const currentRow = pixelToGridRow(oy);
+            if (this.grid.isSolid(col, currentRow)) {
+                nx = dx > 0 ? col * TILE_SIZE - entityHalf : (col + 1) * TILE_SIZE + entityHalf;
+            }
+            // Ajuste fino de Y para alinhar ao tile (corner sliding)
+            const centerY = gridToPixelY(currentRow);
+            const diff = centerY - oy;
+            if (Math.abs(diff) > 2) {
+                ny = oy + Math.sign(diff) * Math.min(Math.abs(diff), this.player.speed * 0.016);
+            } else {
+                ny = oy;
+            }
+        } else if (dy !== 0) {
+            const edgeY = ny + dy * entityHalf;
+            const row = pixelToGridRow(edgeY);
+            const currentCol = pixelToGridCol(ox);
+            if (this.grid.isSolid(currentCol, row)) {
+                ny = dy > 0 ? row * TILE_SIZE + HUD_HEIGHT - entityHalf : (row + 1) * TILE_SIZE + HUD_HEIGHT + entityHalf;
+            }
+            const centerX = gridToPixelX(currentCol);
+            const diff = centerX - ox;
+            if (Math.abs(diff) > 2) {
+                nx = ox + Math.sign(diff) * Math.min(Math.abs(diff), this.player.speed * 0.016);
+            } else {
+                nx = ox;
+            }
+        }
+
+        this.player.x = nx;
+        this.player.y = ny;
     }
 
     _enterDungeon() {
@@ -547,6 +726,11 @@ export default class Game {
             customSeed: this.customSeed,
             canEscape: this.state === STATE_PLAYING && this._isPlayerAtEntrance(),
             introTimer: this.introTimer,
+            // HUB explorável (Fase 23)
+            hubPOIs: this.hubPOIs,
+            hubSubState: this.hubSubState,
+            hubNearPOI: this.state === STATE_HUB ? this._getHubPOINearPlayer() : null,
+            hubDungeonConfirmSelection: this.hubDungeonConfirmSelection,
         };
         this.renderer.render(renderContext);
     }
