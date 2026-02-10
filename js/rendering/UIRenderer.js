@@ -133,6 +133,12 @@ export default class UIRenderer {
         ctx.font = 'bold 14px monospace';
         ctx.textAlign = 'right';
         ctx.fillText(`${score}`, CANVAS_WIDTH - 10, cy);
+
+        // Ouro (Fase 20)
+        const gold = player && (player.gold != null) ? player.gold : 0;
+        ctx.fillStyle = '#e8c040';
+        ctx.font = 'bold 13px monospace';
+        ctx.fillText(`Ouro: ${gold}`, CANVAS_WIDTH - 10, cy + 16);
         
         // Indicador de escape (canto direito superior)
         if (canEscape) {

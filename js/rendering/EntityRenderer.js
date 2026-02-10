@@ -10,7 +10,7 @@ import {
     PLAYER_SPRITE_SCALE, ZOMBIE_SPRITE_SCALE,
     PLAYER_SPRITE_OFFSET_Y, ZOMBIE_SPRITE_OFFSET_Y
 } from '../constants.js';
-import { pixelToGridCol, pixelToGridRow } from '../utils.js';
+import { pixelToGridCol, pixelToGridRow, gridToPixelX, gridToPixelY } from '../utils.js';
 import SpriteLoader from './SpriteLoader.js';
 import ZombieLoader from './ZombieLoader.js';
 
@@ -502,6 +502,33 @@ export default class EntityRenderer {
             ctx.fillText(label, 0, 1);
         }
 
+        ctx.restore();
+    }
+
+    /**
+     * Desenha drop de ouro no grid (Fase 20). drop = { col, row, value }.
+     */
+    drawGoldDrop(ctx, drop) {
+        if (!drop) return;
+        const x = gridToPixelX(drop.col);
+        const y = gridToPixelY(drop.row);
+        const radius = TILE_SIZE * 0.28;
+        ctx.save();
+        ctx.translate(x, y);
+        // Moeda: círculo dourado com borda
+        ctx.fillStyle = '#e8c040';
+        ctx.strokeStyle = '#b09020';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        // Valor no centro
+        ctx.fillStyle = '#2a2000';
+        ctx.font = 'bold 12px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(drop.value), 0, 0);
         ctx.restore();
     }
 

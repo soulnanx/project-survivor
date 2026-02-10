@@ -53,6 +53,12 @@ Documento de **arquitetura e padrões** do código. Para status das fases (imple
   - Cooldown de 1.5s após sair de rage (evita loops)
   - Feedback visual: aura pulsante + tint vermelho com intensidade por fase
 
+- **DropSystem** (`js/systems/DropSystem.js`) — Fase 20 (ouro)
+  - Brick: 5% fixo. Zumbi: 15–30% definido pelo seed do level (determinístico)
+  - Escuta `brick:destroyed` e `enemy:killed`; emite `drop:spawned` com `{ col, row, value }` (valor 1, 5 ou 10)
+  - No update, detecta player na mesma célula que um drop, soma valor a `player.gold`, remove drop, emite `drop:collected`
+  - Game mantém lista `goldDrops`; renderização em EntityRenderer.drawGoldDrop()
+
 ### Player Stats
 
 O Player agora tem:
@@ -78,6 +84,9 @@ Eventos principais:
 - `rage:triggered` - Rage ativada (com posição da explosão e células afetadas)
 - `zombie:rage_start` - Zumbi entrou em rage
 - `zombie:rage_arrived` - Zumbi chegou ao local da explosão
+- `brick:destroyed` - Brick destruído (col, row)
+- `drop:spawned` - Drop de ouro spawnado (col, row, value: 1|5|10)
+- `drop:collected` - Drop coletado pelo player (type: 'gold', value)
 
 ### Renderização com Sprites (Fase 12)
 

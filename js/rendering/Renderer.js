@@ -160,8 +160,15 @@ export default class Renderer {
         }
     }
 
-    _drawEntities(ctx, { entityManager }) {
+    _drawEntities(ctx, { entityManager, goldDrops }) {
         if (!entityManager) return;
+
+        // Drops de ouro (Fase 20) — desenhar antes de entidades para ficarem no chão
+        if (goldDrops && goldDrops.length > 0) {
+            for (const drop of goldDrops) {
+                this.entityRenderer.drawGoldDrop(ctx, drop);
+            }
+        }
 
         // Draw in order: powerups, bombs, explosions, enemies, player
         for (const pu of entityManager.getLayer('powerups')) {

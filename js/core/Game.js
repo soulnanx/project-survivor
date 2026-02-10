@@ -24,6 +24,7 @@ import ScoreSystem from '../systems/ScoreSystem.js';
 import LevelSystem from '../systems/LevelSystem.js';
 import ExperienceSystem from '../systems/ExperienceSystem.js';
 import SaveSystem from '../systems/SaveSystem.js';
+import DropSystem from '../systems/DropSystem.js';
 import SoundEngine from '../audio/SoundEngine.js';
 import Player from '../entities/Player.js';
 import PlayerControlBehavior from '../behaviors/PlayerControlBehavior.js';
@@ -48,7 +49,9 @@ export default class Game {
         this.levelSystem = new LevelSystem();
         this.experienceSystem = new ExperienceSystem();
         this.saveSystem = new SaveSystem();
+        this.dropSystem = new DropSystem();
         this.soundEngine = new SoundEngine();
+        this.goldDrops = []; // Drops de ouro no level (Fase 20)
 
         this.state = STATE_INTRO;
         this.introTimer = INTRO_DURATION;
@@ -129,6 +132,9 @@ export default class Game {
         EventBus.on('zombie:rage_arrived', ({ zombie }) => {
             // Optional: play sound effect
             // this.soundEngine.play('zombieRageArrival');
+        });
+        EventBus.on('drop:spawned', ({ col, row, value }) => {
+            this.goldDrops.push({ col, row, value });
         });
     }
 
@@ -361,12 +367,14 @@ export default class Game {
             attractionSystem: this.attractionSystem,
             rageSystem: this.rageSystem,
             level: this.level,
+            goldDrops: this.goldDrops,
         };
 
         this.entityManager.update(dt, context);
         this.bombSystem.update(dt, context);
         this.attractionSystem.update(dt);
         this.rageSystem.update(dt);
+        this.dropSystem.update(context);
         this.collisionSystem.update(context);
         this.levelSystem.update(context);
         this.experienceSystem.update(context);
@@ -598,6 +606,9 @@ export default class Game {
 
         this.renderer.backgroundLayer.rebuild(this.grid, this.currentDungeonTheme, this.currentLevelSeed);
 
+        this.goldDrops = [];
+        this.dropSystem.init(this.currentLevelSeed);
+
         // Spawn player at top-left safe zone (entrada da dungeon)
         if (!this.player) {
             this.player = new Player(
@@ -731,6 +742,7 @@ export default class Game {
             hubSubState: this.hubSubState,
             hubNearPOI: this.state === STATE_HUB ? this._getHubPOINearPlayer() : null,
             hubDungeonConfirmSelection: this.hubDungeonConfirmSelection,
+            goldDrops: this.goldDrops,
         };
         this.renderer.render(renderContext);
     }
