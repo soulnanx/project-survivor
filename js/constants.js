@@ -168,6 +168,14 @@ export const ZOMBIE_ANIMATION_FPS = 8;      // Animation frame rate (slower than
 export const ZOMBIE_IDLE_FRAME = 5;         // Middle frame for idle (1-indexed)
 export const ZOMBIE_FRAME_COUNT = 9;        // Frames per direction
 
+// Escala visual do jogador e do zumbi (Fase 24 - tamanho na tela)
+// 1.0 = tamanho da tile (48px), 1.50 ≈ 50% maior
+export const PLAYER_SPRITE_SCALE = 1.50;
+export const ZOMBIE_SPRITE_SCALE = 1.50;
+// Offset vertical (px): negativo = desenha mais para cima, evita pés invadirem bloco abaixo
+export const PLAYER_SPRITE_OFFSET_Y = -15;
+export const ZOMBIE_SPRITE_OFFSET_Y = -15;
+
 // Rage System (Phase 17)
 export const RAGE_DURATION_MOVEMENT_MIN = 2.0; // segundos (mínimo)
 export const RAGE_DURATION_MOVEMENT_MAX = 10.0; // segundos (máximo)

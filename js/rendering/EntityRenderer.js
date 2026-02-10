@@ -6,7 +6,9 @@ import {
     POWERUP_BOMB, POWERUP_FLAME, POWERUP_SPEED, POWERUP_HEALTH,
     SPRITE_SIZE, SPRITE_ANIMATION_FPS, SPRITE_IDLE_FRAME, SPRITE_FRAME_COUNT,
     SLASH_FRAME_COUNT, SLASH_ANIMATION_DURATION,
-    ZOMBIE_SPRITE_SIZE, ZOMBIE_ANIMATION_FPS, ZOMBIE_IDLE_FRAME, ZOMBIE_FRAME_COUNT
+    ZOMBIE_SPRITE_SIZE, ZOMBIE_ANIMATION_FPS, ZOMBIE_IDLE_FRAME, ZOMBIE_FRAME_COUNT,
+    PLAYER_SPRITE_SCALE, ZOMBIE_SPRITE_SCALE,
+    PLAYER_SPRITE_OFFSET_Y, ZOMBIE_SPRITE_OFFSET_Y
 } from '../constants.js';
 import { pixelToGridCol, pixelToGridRow } from '../utils.js';
 import SpriteLoader from './SpriteLoader.js';
@@ -60,16 +62,12 @@ export default class EntityRenderer {
             return;
         }
 
-        // Scale 64x64 sprite to fit TILE_SIZE (48px)
-        const scale = TILE_SIZE / SPRITE_SIZE;  // 48 / 64 = 0.75
-        const drawWidth = SPRITE_SIZE * scale;
-        const drawHeight = SPRITE_SIZE * scale;
+        // Scale 64x64 sprite; Fase 24: tamanho final = TILE_SIZE * PLAYER_SPRITE_SCALE
+        const drawSize = TILE_SIZE * PLAYER_SPRITE_SCALE;
+        const drawX = x - drawSize / 2;
+        const drawY = y - drawSize / 2 + PLAYER_SPRITE_OFFSET_Y; // offset para cima (pés não invadem bloco abaixo)
 
-        // Center on player position
-        const drawX = x - drawWidth / 2;
-        const drawY = y - drawHeight / 2;
-
-        ctx.drawImage(sprite, drawX, drawY, drawWidth, drawHeight);
+        ctx.drawImage(sprite, drawX, drawY, drawSize, drawSize);
     }
 
     _calculateSpriteFrame(animTimer, moving) {
@@ -83,17 +81,17 @@ export default class EntityRenderer {
     }
 
     _drawPlayerProcedural(ctx, player) {
-        // Procedural fallback - original drawing code
+        // Procedural fallback - original drawing code (Fase 24: escala aplicada)
         const { x, y, direction, animTimer, moving } = player;
 
-        const size = TILE_SIZE * 0.7;
+        const size = TILE_SIZE * 0.7 * PLAYER_SPRITE_SCALE;
         const half = size / 2;
         const headRadius = size * 0.25;
         const bodyHeight = size * 0.5;
         const bodyWidth = size * 0.4;
 
         ctx.save();
-        ctx.translate(x, y);
+        ctx.translate(x, y + PLAYER_SPRITE_OFFSET_Y); // offset para cima (procedural)
 
         // Animação de caminhada
         const walkOffset = moving ? Math.sin(animTimer * 12) * 2 : 0;
@@ -203,16 +201,12 @@ export default class EntityRenderer {
             return;
         }
 
-        // Scale 64x64 sprite to fit TILE_SIZE (48px)
-        const scale = TILE_SIZE / ZOMBIE_SPRITE_SIZE;  // 48 / 64 = 0.75
-        const drawWidth = ZOMBIE_SPRITE_SIZE * scale;
-        const drawHeight = ZOMBIE_SPRITE_SIZE * scale;
+        // Scale 64x64 sprite; Fase 24: tamanho final = TILE_SIZE * ZOMBIE_SPRITE_SCALE
+        const drawSize = TILE_SIZE * ZOMBIE_SPRITE_SCALE;
+        const drawX = x - drawSize / 2;
+        const drawY = y - drawSize / 2 + ZOMBIE_SPRITE_OFFSET_Y; // offset para cima (pés não invadem bloco abaixo)
 
-        // Center on enemy position
-        const drawX = x - drawWidth / 2;
-        const drawY = y - drawHeight / 2;
-
-        ctx.drawImage(sprite, drawX, drawY, drawWidth, drawHeight);
+        ctx.drawImage(sprite, drawX, drawY, drawSize, drawSize);
     }
 
     _calculateZombieFrame(animTimer, moving) {
@@ -226,9 +220,9 @@ export default class EntityRenderer {
     }
 
     _drawZombieProcedural(ctx, enemy) {
-        // Procedural fallback - original drawing code
+        // Procedural fallback - original drawing code (Fase 24: escala aplicada)
         const { x, y, enemyType, animTimer, moving, hitFlash } = enemy;
-        const size = TILE_SIZE * 0.7;
+        const size = TILE_SIZE * 0.7 * ZOMBIE_SPRITE_SCALE;
         const half = size / 2;
 
         // Cores base por tipo de zumbi
@@ -257,7 +251,7 @@ export default class EntityRenderer {
         }
 
         ctx.save();
-        ctx.translate(x, y);
+        ctx.translate(x, y + ZOMBIE_SPRITE_OFFSET_Y); // offset para cima (procedural)
 
         // Animação de movimento zumbi (mais lenta e arrastada)
         const zombieBob = moving ? Math.sin(animTimer * 4) * 1.5 : 0; // Mais lento
@@ -527,9 +521,10 @@ export default class EntityRenderer {
     }
 
     _drawEnemyHPBar(ctx, enemy, x, y) {
-        const barWidth = TILE_SIZE * 0.6;
+        // Fase 24: barra proporcional ao tamanho visual do zumbi (com offset Y)
+        const barWidth = TILE_SIZE * ZOMBIE_SPRITE_SCALE * 0.6;
         const barHeight = 4;
-        const barY = y - TILE_SIZE * 0.5; // Above enemy
+        const barY = y + ZOMBIE_SPRITE_OFFSET_Y - TILE_SIZE * ZOMBIE_SPRITE_SCALE * 0.5; // Above enemy
         const barX = x - barWidth / 2;
 
         // Background (red)

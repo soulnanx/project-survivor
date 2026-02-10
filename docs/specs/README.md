@@ -19,7 +19,7 @@ Esta pasta contém toda a documentação de especificações e planos de impleme
 - `18-fase-18-animacao-slash-ataque-fisico.md` - Animação Slash (sprites) ao apertar F para ataque físico (⬜ Pendente)
 - `19-fase-19-tile-saida-escada.md` - Tile de Saída (escada) no level (✅ Implementado)
 - `23-fase-23-hub-level-exploravel.md` - HUB como level explorável (andar, inventário, loja, entrar dungeon) (✅ Implementado)
-- `24-fase-24-aumentar-tamanho-jogador-zumbi.md` - Aumentar tamanho visual do jogador e do zumbi (⬜ Pendente)
+- `24-fase-24-aumentar-tamanho-jogador-zumbi.md` - Aumentar tamanho visual do jogador e do zumbi (✅ Implementado)
 
 ## Status Geral
 
@@ -52,7 +52,7 @@ O jogo é um **survival game com permadeath** inspirado em Project Zomboid:
 - ⬜ **Fase 21**: Variedade de Dungeons (tipos, modificadores, tiers)
 - ⬜ **Fase 22**: Loja no HUB (cura, equipamentos)
 - ✅ **Fase 23**: HUB como level explorável (andar no mapa, POIs: inventário, loja, entrada dungeon) - COMPLETA
-- ⬜ **Fase 24**: Aumentar tamanho visual do jogador e do zumbi (constantes de escala, apenas renderização)
+- ✅ **Fase 24**: Aumentar tamanho visual do jogador e do zumbi (constantes de escala, apenas renderização) - COMPLETA
 - ⬜ **Fase 22+**: Polish e Expansão
 
 ## Notas sobre Status
