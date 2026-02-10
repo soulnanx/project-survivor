@@ -21,9 +21,19 @@ Toda a documentação técnica está em `docs/specs/`:
 - `03-fase-3-7-completar-sistema-rpg.md` - Sistema de XP/Level
 - `08-fase-8-save-load-system.md` - Sistema de Save/Load
 
+## Como executar
+
+Na raiz do projeto:
+
+```bash
+npx serve .
+```
+
+Depois abra no navegador o endereço indicado (geralmente `http://localhost:3000`).
+
 ## Como Jogar
 
-1. Abra `index.html` no navegador
+1. Abra o endereço no navegador (após `npx serve .`) ou abra `index.html` diretamente
 2. Use setas/WASD para mover
 3. Espaço para colocar bombas
 4. Mate inimigos para ganhar XP e subir de nível
