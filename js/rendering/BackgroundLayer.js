@@ -1,10 +1,13 @@
 import {
     COLS, ROWS, TILE_SIZE, HUD_HEIGHT,
-    CELL_WALL, CELL_BRICK, CELL_EMPTY,
+    CELL_WALL, CELL_BRICK, CELL_EMPTY, CELL_WOOD, CELL_IRON_BARS, CELL_HARD_BRICK,
     EXIT_COL, EXIT_ROW,
     COLOR_FLOOR, COLOR_FLOOR_ALT,
     COLOR_WALL, COLOR_WALL_LIGHT, COLOR_WALL_DARK,
-    COLOR_BRICK, COLOR_BRICK_LIGHT, COLOR_BRICK_DARK
+    COLOR_BRICK, COLOR_BRICK_LIGHT, COLOR_BRICK_DARK,
+    COLOR_WOOD, COLOR_WOOD_LIGHT, COLOR_WOOD_DARK,
+    COLOR_IRON_BARS, COLOR_IRON_BARS_LIGHT,
+    COLOR_HARD_BRICK, COLOR_HARD_BRICK_LIGHT, COLOR_HARD_BRICK_DARK
 } from '../constants.js';
 import PRNG from '../utils/PRNG.js';
 
@@ -149,6 +152,12 @@ export default class BackgroundLayer {
                 } else if (cell === CELL_BRICK) {
                     // Desenhar escombros apocalípticos
                     this._drawDebrisTile(ctx, x, y, TILE_SIZE, palette, c, r);
+                } else if (cell === CELL_WOOD) {
+                    this._drawWoodTile(ctx, x, y, TILE_SIZE);
+                } else if (cell === CELL_HARD_BRICK) {
+                    this._drawHardBrickTile(ctx, x, y, TILE_SIZE);
+                } else if (cell === CELL_IRON_BARS) {
+                    this._drawIronBarsTile(ctx, x, y, TILE_SIZE);
                 }
 
                 // Manchas de sangue ocasionais (usar dados pré-calculados) — não na tile de saída
@@ -364,6 +373,86 @@ export default class BackgroundLayer {
 
         ctx.fillStyle = gradient;
         ctx.fillRect(x - tileSize * 2, y - tileSize * 2, tileSize * 4, tileSize * 4);
+    }
+
+    _drawWoodTile(ctx, x, y, size) {
+        const b = 3; // border size
+
+        // Corpo da madeira (cor baseada)
+        ctx.fillStyle = COLOR_WOOD;
+        ctx.fillRect(x, y, size, size);
+
+        // Highlight superior/esquerdo
+        ctx.fillStyle = COLOR_WOOD_LIGHT;
+        ctx.fillRect(x, y, size, b);
+        ctx.fillRect(x, y, b, size);
+
+        // Sombra inferior/direita
+        ctx.fillStyle = COLOR_WOOD_DARK;
+        ctx.fillRect(x, y + size - b, size, b);
+        ctx.fillRect(x + size - b, y, b, size);
+
+        // Linhas verticais (textura de madeira)
+        ctx.strokeStyle = COLOR_WOOD_DARK;
+        ctx.lineWidth = 1;
+        for (let i = 0; i < size; i += 8) {
+            ctx.beginPath();
+            ctx.moveTo(x + i + 4, y + 2);
+            ctx.lineTo(x + i + 4, y + size - 2);
+            ctx.stroke();
+        }
+    }
+
+    _drawHardBrickTile(ctx, x, y, size) {
+        const b = 3; // border size
+
+        // Corpo mais escuro que brick normal
+        ctx.fillStyle = COLOR_HARD_BRICK;
+        ctx.fillRect(x, y, size, size);
+
+        // Highlight superior/esquerdo
+        ctx.fillStyle = COLOR_HARD_BRICK_LIGHT;
+        ctx.fillRect(x, y, size, b);
+        ctx.fillRect(x, y, b, size);
+
+        // Sombra inferior/direita (mais escura que normal)
+        ctx.fillStyle = COLOR_HARD_BRICK_DARK;
+        ctx.fillRect(x, y + size - b, size, b);
+        ctx.fillRect(x + size - b, y, b, size);
+
+        // Padrão de reforço (mais denso que brick normal)
+        ctx.fillStyle = COLOR_HARD_BRICK_DARK;
+        const lineCount = 3;
+        for (let i = 1; i < lineCount; i++) {
+            // Linhas horizontais
+            ctx.fillRect(x + b, y + Math.floor(size * i / lineCount) - 1, size - b * 2, 2);
+        }
+    }
+
+    _drawIronBarsTile(ctx, x, y, size) {
+        const b = 2;
+
+        // Fundo escuro (aço)
+        ctx.fillStyle = COLOR_IRON_BARS;
+        ctx.fillRect(x, y, size, size);
+
+        // Barras verticais de ferro com brilho
+        const barWidth = 4;
+        const barSpacing = 8;
+        for (let i = x + 2; i < x + size; i += barSpacing) {
+            // Barra sombra (lado esquerdo)
+            ctx.fillStyle = '#505050';
+            ctx.fillRect(i, y + 2, barWidth, size - 4);
+
+            // Barra highlight (lado direito - brilho)
+            ctx.fillStyle = COLOR_IRON_BARS_LIGHT;
+            ctx.fillRect(i + 2, y + 2, 1, size - 4);
+        }
+
+        // Borda
+        ctx.strokeStyle = '#303030';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x, y, size, size);
     }
 
     // Métodos legados mantidos para compatibilidade

@@ -4,6 +4,7 @@ import {
     STATE_LEVEL_COMPLETE, STATE_HUB,
     POI_TYPE_INVENTORY, POI_TYPE_SHOP, POI_TYPE_DUNGEON, POI_TYPE_HIGH_SCORES,
     SHOP_HEAL_COST, SHOP_HEAL_AMOUNT,
+    SHOP_AXE_COST, SHOP_PICKAXE_COST, SHOP_BOLT_CUTTERS_COST,
 } from '../constants.js';
 import { XP_TABLE_EXPORT as XP_TABLE } from '../systems/ExperienceSystem.js';
 
@@ -225,6 +226,25 @@ export default class UIRenderer {
         ctx.fillStyle = '#8a8a6a';
         ctx.font = '12px monospace';
         ctx.fillText('[B]', 150, centerY);
+
+        // Equipamentos (Fase 28) - lado direito da barra
+        const equipX = CANVAS_WIDTH - 250;
+        ctx.fillStyle = '#d0d0a0';
+        ctx.font = 'bold 11px monospace';
+        ctx.textAlign = 'left';
+
+        let eqX = equipX;
+        if (player.equipment.axe > 0) {
+            ctx.fillText(`[Axe:${player.equipment.axe}]`, eqX, centerY);
+            eqX += 85;
+        }
+        if (player.equipment.pickaxe > 0) {
+            ctx.fillText(`[Pick:${player.equipment.pickaxe}]`, eqX, centerY);
+            eqX += 85;
+        }
+        if (player.equipment.boltCutters > 0) {
+            ctx.fillText(`[Cut:${player.equipment.boltCutters}]`, eqX, centerY);
+        }
     }
 
     /**
@@ -546,11 +566,39 @@ export default class UIRenderer {
         ctx.font = '16px sans-serif';
         ctx.fillText(`Ouro: ${player ? (player.gold != null ? player.gold : 0) : 0}`, CANVAS_WIDTH / 2, 100);
 
-        const canBuy = player && (player.gold != null ? player.gold : 0) >= SHOP_HEAL_COST && player.hp < player.maxHp;
-        ctx.fillStyle = canBuy ? '#4f4' : '#666';
-        ctx.font = '18px sans-serif';
-        ctx.fillText(`Comprar cura (+${SHOP_HEAL_AMOUNT} HP) - ${SHOP_HEAL_COST} ouro`, CANVAS_WIDTH / 2, 160);
-        ctx.fillText('Enter - Comprar', CANVAS_WIDTH / 2, 200);
+        const gold = player ? (player.gold != null ? player.gold : 0) : 0;
+        let yPos = 140;
+
+        // Cura
+        const canBuyCure = gold >= SHOP_HEAL_COST && player && player.hp < player.maxHp;
+        ctx.fillStyle = canBuyCure ? '#4f4' : '#666';
+        ctx.font = '16px sans-serif';
+        ctx.fillText(`Cura (+${SHOP_HEAL_AMOUNT} HP) - ${SHOP_HEAL_COST} ouro [1]`, CANVAS_WIDTH / 2, yPos);
+        yPos += 35;
+
+        // Machado
+        const canBuyAxe = gold >= SHOP_AXE_COST;
+        ctx.fillStyle = canBuyAxe ? '#4f4' : '#666';
+        ctx.fillText(`Machado (10 usos) - ${SHOP_AXE_COST} ouro [2]`, CANVAS_WIDTH / 2, yPos);
+        yPos += 35;
+
+        // Picareta
+        const canBuyPickaxe = gold >= SHOP_PICKAXE_COST;
+        ctx.fillStyle = canBuyPickaxe ? '#4f4' : '#666';
+        ctx.fillText(`Picareta (8 usos) - ${SHOP_PICKAXE_COST} ouro [3]`, CANVAS_WIDTH / 2, yPos);
+        yPos += 35;
+
+        // Alicate
+        const canBuyCutters = gold >= SHOP_BOLT_CUTTERS_COST;
+        ctx.fillStyle = canBuyCutters ? '#4f4' : '#666';
+        ctx.fillText(`Alicate (6 usos) - ${SHOP_BOLT_CUTTERS_COST} ouro [4]`, CANVAS_WIDTH / 2, yPos);
+
+        // Informações
+        yPos += 50;
+        ctx.fillStyle = '#a0a090';
+        ctx.font = '11px sans-serif';
+        ctx.fillText('Equipamentos têm durabilidade limitada e são imunes a bombas', CANVAS_WIDTH / 2, yPos);
+        ctx.fillText('Use tecla E para quebrar blocos especiais com equipamentos', CANVAS_WIDTH / 2, yPos + 18);
 
         ctx.fillStyle = '#666';
         ctx.font = '14px sans-serif';

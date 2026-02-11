@@ -1,4 +1,4 @@
-import { CELL_BRICK, CELL_WALL, CELL_EMPTY, TILE_SIZE, SCORE_BRICK } from '../constants.js';
+import { CELL_BRICK, CELL_WALL, CELL_EMPTY, TILE_SIZE, SCORE_BRICK, CELL_WOOD, CELL_IRON_BARS, CELL_HARD_BRICK } from '../constants.js';
 import { pixelToGridCol, pixelToGridRow, gridToPixelX, gridToPixelY } from '../utils.js';
 import Explosion from '../entities/Explosion.js';
 import PowerUp from '../entities/PowerUp.js';
@@ -65,6 +65,9 @@ export default class BombSystem {
                     //     entityManager.add(pu, 'powerups');
                     // }
                     break; // Stop propagation after brick
+                } else if (grid.getCell(nc, nr) === CELL_WOOD || grid.getCell(nc, nr) === CELL_IRON_BARS || grid.getCell(nc, nr) === CELL_HARD_BRICK) {
+                    // Special blocks block explosions but are not destroyed
+                    break;
                 }
 
                 cells.push({ col: nc, row: nr });

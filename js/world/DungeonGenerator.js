@@ -1,4 +1,4 @@
-import { COLS, ROWS, CELL_EMPTY, CELL_WALL, CELL_BRICK, LEVEL_CONFIG, POWERUP_TYPES, DUNGEON_SEED_BASE, DUNGEON_SEED_OFFSET } from '../constants.js';
+import { COLS, ROWS, CELL_EMPTY, CELL_WALL, CELL_BRICK, CELL_WOOD, CELL_HARD_BRICK, CELL_IRON_BARS, LEVEL_CONFIG, POWERUP_TYPES, DUNGEON_SEED_BASE, DUNGEON_SEED_OFFSET } from '../constants.js';
 import { floodFill } from '../utils.js';
 import PRNG from '../utils/PRNG.js';
 
@@ -42,6 +42,9 @@ export default class DungeonGenerator {
 
         // 4. Gerar blocos baseado em seed
         this._generateBricks(grid, prng, genConfig, safeZones);
+
+        // 4b. Gerar blocos especiais (Fase 27)
+        this._generateSpecialBlocks(grid, prng, level);
 
         // 5. Validar e garantir reachability
         this._ensureReachability(grid, safeZones);
@@ -115,6 +118,44 @@ export default class DungeonGenerator {
         for (let i = 0; i < brickCount; i++) {
             const [c, r] = shuffled[i];
             grid.setCell(c, r, CELL_BRICK);
+        }
+    }
+
+    static _generateSpecialBlocks(grid, prng, level) {
+        // Não gerar blocos especiais antes do nível 2
+        if (level < 2) return;
+
+        // Coletar todas as posições com CELL_BRICK
+        const bricks = [];
+        for (let c = 1; c < COLS - 1; c++) {
+            for (let r = 1; r < ROWS - 1; r++) {
+                if (grid.getCell(c, r) === CELL_BRICK) {
+                    bricks.push([c, r]);
+                }
+            }
+        }
+
+        // 10-15% dos bricks viram blocos especiais
+        const ratioMin = 0.10;
+        const ratioMax = 0.15;
+        const ratio = ratioMin + prng.random() * (ratioMax - ratioMin);
+        const specialCount = Math.floor(bricks.length * ratio);
+
+        // Distribuição progressiva por nível
+        const distribution = [];
+        if (level >= 2) distribution.push(...Array(5).fill(CELL_WOOD)); // 50%
+        if (level >= 4) distribution.push(...Array(3).fill(CELL_HARD_BRICK)); // 30%
+        if (level >= 7) distribution.push(...Array(2).fill(CELL_IRON_BARS)); // 20%
+
+        // Se não há distribuição (level < 2), não fazer nada
+        if (distribution.length === 0) return;
+
+        // Substituir bricks aleatórios
+        const shuffled = prng.shuffle(bricks);
+        for (let i = 0; i < specialCount && i < shuffled.length; i++) {
+            const [c, r] = shuffled[i];
+            const blockType = prng.choice(distribution);
+            grid.setCell(c, r, blockType);
         }
     }
 

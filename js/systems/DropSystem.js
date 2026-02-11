@@ -7,6 +7,7 @@
 import EventBus from '../core/EventBus.js';
 import PRNG from '../utils/PRNG.js';
 import { pixelToGridCol, pixelToGridRow } from '../utils.js';
+import { CELL_WOOD, CELL_IRON_BARS, CELL_HARD_BRICK, WOOD_DROP_CHANCE, IRON_BARS_DROP_CHANCE, HARD_BRICK_DROP_CHANCE } from '../constants.js';
 
 const GOLD_VALUES = [1, 5, 10]; // pequeno, médio, grande
 const BRICK_DROP_CHANCE = 5;    // 5% fixo ao destruir brick
@@ -23,6 +24,17 @@ export default class DropSystem {
     _setupEvents() {
         EventBus.on('brick:destroyed', ({ col, row }) => {
             this._trySpawnGold(col, row, BRICK_DROP_CHANCE);
+        });
+        EventBus.on('block:broken', ({ col, row, type }) => {
+            // Blocos especiais têm chances de drop melhores
+            const chances = {
+                [CELL_WOOD]: WOOD_DROP_CHANCE,
+                [CELL_IRON_BARS]: IRON_BARS_DROP_CHANCE,
+                [CELL_HARD_BRICK]: HARD_BRICK_DROP_CHANCE
+            };
+            if (chances[type]) {
+                this._trySpawnGold(col, row, chances[type]);
+            }
         });
         EventBus.on('enemy:killed', ({ enemy }) => {
             if (!enemy) return;

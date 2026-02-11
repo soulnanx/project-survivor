@@ -16,7 +16,7 @@ export default class SaveSystem {
         if (!player) return false;
 
         const saveData = {
-            version: 3, // Mantido v3 por compatibilidade (v4 será na Fase 12)
+            version: 5, // Atualizado para v5 (Fase 29 - equipamentos)
             timestamp: Date.now(),
             player: {
                 level: player.level,
@@ -30,6 +30,11 @@ export default class SaveSystem {
                 attackPower: player.attackPower,
                 critChance: player.critChance,
                 gold: player.gold != null ? player.gold : 0,
+                equipment: {
+                    axe: player.equipment?.axe || 0,
+                    pickaxe: player.equipment?.pickaxe || 0,
+                    boltCutters: player.equipment?.boltCutters || 0
+                }
             },
             game: {
                 dungeonLevel: level,
@@ -118,6 +123,18 @@ export default class SaveSystem {
         player.attackPower = saved.attackPower || 1.0;
         player.critChance = saved.critChance || 0;
         player.gold = saved.gold != null ? saved.gold : 0;
+
+        // Equipamentos (Fase 29 - compatibilidade com saves antigos)
+        if (saved.equipment) {
+            player.equipment = {
+                axe: saved.equipment.axe || 0,
+                pickaxe: saved.equipment.pickaxe || 0,
+                boltCutters: saved.equipment.boltCutters || 0
+            };
+        } else {
+            // Fallback para saves v3/v4 sem equipamentos
+            player.equipment = { axe: 0, pickaxe: 0, boltCutters: 0 };
+        }
 
         // Garantir que HP não ultrapasse maxHp
         player.hp = Math.min(player.hp, player.maxHp);

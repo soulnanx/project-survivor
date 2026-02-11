@@ -50,7 +50,7 @@ export default class PlayerControlBehavior extends Behavior {
                 EventBus.emit('inventory:empty', { item: 'bomb' });
                 return;
             }
-            
+
             // Verificar se já existe bomba na mesma posição (evitar sobreposição)
             const col = pixelToGridCol(entity.x);
             const row = pixelToGridRow(entity.y);
@@ -70,6 +70,27 @@ export default class PlayerControlBehavior extends Behavior {
                 EventBus.emit('bomb:placed', { bomb });
                 context.soundEngine.play('placeBomb');
             }
+        }
+
+        // Use equipment (Fase 28 - Quebrar blocos especiais)
+        if (input.useEquipment) {
+            const dirMap = {
+                'up': [0, -1],
+                'down': [0, 1],
+                'left': [-1, 0],
+                'right': [1, 0]
+            };
+            const [dx, dy] = dirMap[entity.direction];
+            const targetCol = pixelToGridCol(entity.x) + dx;
+            const targetRow = pixelToGridRow(entity.y) + dy;
+
+            EventBus.emit('equipment:use', {
+                player: entity,
+                col: targetCol,
+                row: targetRow,
+                grid: context.grid,
+                soundEngine: context.soundEngine
+            });
         }
     }
 

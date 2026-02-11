@@ -19,6 +19,13 @@ export default class Player extends Entity {
         // Ouro (Fase 23 - loja no HUB)
         this.gold = PLAYER_START_GOLD;
 
+        // Equipamentos (Fase 28)
+        this.equipment = {
+            axe: 0,
+            pickaxe: 0,
+            boltCutters: 0
+        };
+
         // HP System
         this.maxHp = PLAYER_MAX_HP;
         this.hp = PLAYER_START_HP;

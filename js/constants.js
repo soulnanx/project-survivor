@@ -9,6 +9,9 @@ export const CANVAS_HEIGHT = ROWS * TILE_SIZE + 48 + 32; // +48 for HUD + 32 for
 export const CELL_EMPTY = 0;
 export const CELL_WALL = 1;
 export const CELL_BRICK = 2;
+export const CELL_WOOD = 3;
+export const CELL_IRON_BARS = 4;
+export const CELL_HARD_BRICK = 5;
 
 // Saída do level (Fase 19 - tile de escada)
 export const EXIT_COL = 1;
@@ -24,7 +27,28 @@ export const POI_TYPE_DUNGEON = 'dungeon';
 export const POI_TYPE_HIGH_SCORES = 'high_scores';
 export const SHOP_HEAL_COST = 10;      // Ouro por cura (placeholder)
 export const SHOP_HEAL_AMOUNT = 5;     // HP recuperados por compra
-export const PLAYER_START_GOLD = 0;
+export const PLAYER_START_GOLD = 1000; // Testando: 1000 ouro inicial
+
+// Equipment System (Fase 28-29)
+export const EQUIPMENT_AXE = 'axe';
+export const EQUIPMENT_PICKAXE = 'pickaxe';
+export const EQUIPMENT_BOLT_CUTTERS = 'boltCutters';
+
+export const EQUIPMENT_DURABILITY = {
+    [EQUIPMENT_AXE]: 10,
+    [EQUIPMENT_PICKAXE]: 8,
+    [EQUIPMENT_BOLT_CUTTERS]: 6
+};
+
+export const BLOCK_EQUIPMENT_MAP = {
+    [CELL_WOOD]: EQUIPMENT_AXE,
+    [CELL_HARD_BRICK]: EQUIPMENT_PICKAXE,
+    [CELL_IRON_BARS]: EQUIPMENT_BOLT_CUTTERS
+};
+
+export const SHOP_AXE_COST = 50;
+export const SHOP_PICKAXE_COST = 75;
+export const SHOP_BOLT_CUTTERS_COST = 100;
 
 // Game states
 export const STATE_INTRO = 'INTRO';
@@ -93,6 +117,14 @@ export const COLOR_WALL_DARK = '#333';
 export const COLOR_BRICK = '#b07040';
 export const COLOR_BRICK_LIGHT = '#c88858';
 export const COLOR_BRICK_DARK = '#8a5530';
+export const COLOR_WOOD = '#8B6F47';
+export const COLOR_WOOD_LIGHT = '#A0845C';
+export const COLOR_WOOD_DARK = '#6B5537';
+export const COLOR_IRON_BARS = '#707070';
+export const COLOR_IRON_BARS_LIGHT = '#909090';
+export const COLOR_HARD_BRICK = '#6B4423';
+export const COLOR_HARD_BRICK_LIGHT = '#805533';
+export const COLOR_HARD_BRICK_DARK = '#4B3013';
 export const COLOR_PLAYER = '#3388ff';
 export const COLOR_ENEMY_WANDERER = '#e04040';
 export const COLOR_ENEMY_CHASER = '#e08020';
@@ -209,3 +241,8 @@ export const RAGE_VISUAL_FADE_TIME = 0.5; // segundos para fade out
 export const CHASE_PROXIMITY_ENTER = 3;   // entra em perseguição quando distância ≤ 3
 export const CHASE_PROXIMITY_LEAVE = 4;   // sai quando distância > 4 (histerese)
 export const CHASE_SPEED_MULTIPLIER = 1.15; // bônus de velocidade (15%)
+
+// Special blocks drop rates (Fase 27)
+export const WOOD_DROP_CHANCE = 10;
+export const IRON_BARS_DROP_CHANCE = 15;
+export const HARD_BRICK_DROP_CHANCE = 12;

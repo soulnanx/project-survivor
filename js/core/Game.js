@@ -1,7 +1,10 @@
 import {
     STATE_INTRO, STATE_MENU, STATE_HUB, STATE_PLAYING, STATE_PAUSED, STATE_GAME_OVER,
     STATE_LEVEL_COMPLETE, STATE_SEED_INPUT, CANVAS_WIDTH, CANVAS_HEIGHT,
-    LEVEL_TRANSITION_TIME, INTRO_DURATION
+    LEVEL_TRANSITION_TIME, INTRO_DURATION,
+    EQUIPMENT_DURABILITY,
+    EQUIPMENT_AXE, EQUIPMENT_PICKAXE, EQUIPMENT_BOLT_CUTTERS,
+    SHOP_AXE_COST, SHOP_PICKAXE_COST, SHOP_BOLT_CUTTERS_COST
 } from '../constants.js';
 import Input from './Input.js';
 import EventBus from './EventBus.js';
@@ -25,6 +28,7 @@ import LevelSystem from '../systems/LevelSystem.js';
 import ExperienceSystem from '../systems/ExperienceSystem.js';
 import SaveSystem from '../systems/SaveSystem.js';
 import DropSystem from '../systems/DropSystem.js';
+import EquipmentSystem from '../systems/EquipmentSystem.js';
 import SoundEngine from '../audio/SoundEngine.js';
 import Player from '../entities/Player.js';
 import PlayerControlBehavior from '../behaviors/PlayerControlBehavior.js';
@@ -50,6 +54,7 @@ export default class Game {
         this.experienceSystem = new ExperienceSystem();
         this.saveSystem = new SaveSystem();
         this.dropSystem = new DropSystem();
+        this.equipmentSystem = new EquipmentSystem();
         this.soundEngine = new SoundEngine();
         this.goldDrops = []; // Drops de ouro no level (Fase 20)
 
@@ -90,6 +95,12 @@ export default class Game {
             const seed = this.currentLevelSeed || Date.now();
             this.renderer.backgroundLayer.rebuild(this.grid, theme, seed);
             this.soundEngine.play('brickBreak');
+        });
+        EventBus.on('block:broken', () => {
+            // Bloco especial quebrado - redesenhar
+            const theme = this.currentDungeonTheme || 'ruins';
+            const seed = this.currentLevelSeed || Date.now();
+            this.renderer.backgroundLayer.rebuild(this.grid, theme, seed);
         });
         EventBus.on('powerup:collected', () => {
             this.soundEngine.play('powerup');
@@ -231,12 +242,47 @@ export default class Game {
                 this.hubSubState = null;
                 this.soundEngine.play('menuSelect');
             }
-            if (this.input.wasPressed('Enter') || this.input.wasPressed('Space')) {
+
+            // Cura (Enter/Space ou tecla 1)
+            if (this.input.wasPressed('Enter') || this.input.wasPressed('Space') || this.input.wasPressed('Digit1')) {
                 const gold = this.player.gold != null ? this.player.gold : 0;
                 if (gold >= SHOP_HEAL_COST && this.player.hp < this.player.maxHp) {
                     this.player.gold = gold - SHOP_HEAL_COST;
                     this.player.hp = Math.min(this.player.maxHp, this.player.hp + SHOP_HEAL_AMOUNT);
                     this.soundEngine.play('powerup');
+                }
+            }
+
+            // Machado (Tecla 2)
+            if (this.input.wasPressed('Digit2')) {
+                const gold = this.player.gold != null ? this.player.gold : 0;
+                if (gold >= SHOP_AXE_COST) {
+                    this.player.gold = gold - SHOP_AXE_COST;
+                    this.player.equipment.axe += EQUIPMENT_DURABILITY[EQUIPMENT_AXE];
+                    this.soundEngine.play('powerup');
+                    EventBus.emit('shop:purchase', { item: 'axe', cost: SHOP_AXE_COST });
+                }
+            }
+
+            // Picareta (Tecla 3)
+            if (this.input.wasPressed('Digit3')) {
+                const gold = this.player.gold != null ? this.player.gold : 0;
+                if (gold >= SHOP_PICKAXE_COST) {
+                    this.player.gold = gold - SHOP_PICKAXE_COST;
+                    this.player.equipment.pickaxe += EQUIPMENT_DURABILITY[EQUIPMENT_PICKAXE];
+                    this.soundEngine.play('powerup');
+                    EventBus.emit('shop:purchase', { item: 'pickaxe', cost: SHOP_PICKAXE_COST });
+                }
+            }
+
+            // Alicate (Tecla 4)
+            if (this.input.wasPressed('Digit4')) {
+                const gold = this.player.gold != null ? this.player.gold : 0;
+                if (gold >= SHOP_BOLT_CUTTERS_COST) {
+                    this.player.gold = gold - SHOP_BOLT_CUTTERS_COST;
+                    this.player.equipment.boltCutters += EQUIPMENT_DURABILITY[EQUIPMENT_BOLT_CUTTERS];
+                    this.soundEngine.play('powerup');
+                    EventBus.emit('shop:purchase', { item: 'boltCutters', cost: SHOP_BOLT_CUTTERS_COST });
                 }
             }
             return;

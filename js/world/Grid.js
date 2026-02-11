@@ -1,4 +1,4 @@
-import { COLS, ROWS, CELL_EMPTY, CELL_WALL, CELL_BRICK } from '../constants.js';
+import { COLS, ROWS, CELL_EMPTY, CELL_WALL, CELL_BRICK, CELL_WOOD, CELL_IRON_BARS, CELL_HARD_BRICK } from '../constants.js';
 import EventBus from '../core/EventBus.js';
 
 export default class Grid {
@@ -33,11 +33,18 @@ export default class Grid {
 
     isSolid(col, row) {
         const cell = this.getCell(col, row);
-        return cell === CELL_WALL || cell === CELL_BRICK;
+        return cell === CELL_WALL || cell === CELL_BRICK ||
+               cell === CELL_WOOD || cell === CELL_IRON_BARS ||
+               cell === CELL_HARD_BRICK;
     }
 
     isDestructible(col, row) {
         return this.getCell(col, row) === CELL_BRICK;
+    }
+
+    isSpecialBlock(col, row) {
+        const cell = this.getCell(col, row);
+        return cell === CELL_WOOD || cell === CELL_IRON_BARS || cell === CELL_HARD_BRICK;
     }
 
     setPowerup(col, row, type) {

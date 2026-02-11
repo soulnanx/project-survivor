@@ -60,6 +60,7 @@ export default class Input {
     get escape() { return this.wasPressed('KeyE'); }
     get attack() { return this.wasPressed('KeyF'); }
     get bombKey() { return this.wasPressed('KeyB'); } // Tecla alternativa para colocar bomba (Fase 16)
+    get useEquipment() { return this.wasPressed('KeyE'); } // Tecla E para usar equipamentos (Fase 28)
 
     /** Call at the end of each frame to clear justPressed */
     endFrame() {
