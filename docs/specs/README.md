@@ -21,6 +21,7 @@ Esta pasta contém toda a documentação de especificações e planos de impleme
 - `20-fase-20-sistema-drops-inventario.md` - Sistema de Drops e Inventário (ouro, equipamentos, poções) (✅ Implementado - escopo ouro)
 - `23-fase-23-hub-level-exploravel.md` - HUB como level explorável (andar, inventário, loja, entrar dungeon) (✅ Implementado)
 - `24-fase-24-aumentar-tamanho-jogador-zumbi.md` - Aumentar tamanho visual do jogador e do zumbi (✅ Implementado)
+- `25-fase-25-comportamento-inimigos-distancia-velocidade.md` - Perseguição ao jogador a ≤3 blocos e velocidade +15% (⬜ Pendente)
 
 ## Status Geral
 
@@ -54,6 +55,7 @@ O jogo é um **survival game com permadeath** inspirado em Project Zomboid:
 - ⬜ **Fase 22**: Loja no HUB (cura, equipamentos)
 - ✅ **Fase 23**: HUB como level explorável (andar no mapa, POIs: inventário, loja, entrada dungeon) - COMPLETA
 - ✅ **Fase 24**: Aumentar tamanho visual do jogador e do zumbi (constantes de escala, apenas renderização) - COMPLETA
+- ⬜ **Fase 25**: Alteração no comportamento dos inimigos (perseguir só a ≤3 blocos, velocidade +15%, histerese)
 - ⬜ **Fase 22+**: Polish e Expansão
 
 ## Notas sobre Status
