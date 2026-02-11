@@ -53,6 +53,13 @@ Documento de **arquitetura e padrões** do código. Para status das fases (imple
   - Cooldown de 1.5s após sair de rage (evita loops)
   - Feedback visual: aura pulsante + tint vermelho com intensidade por fase
 
+- **Perseguição por proximidade (Fase 25)** — comportamentos em `js/behaviors/`
+  - Zumbis (wanderer, chaser, smart) só perseguem o jogador quando distância em grid (Manhattan) ≤ 3 células; histerese: deixam de perseguir quando > 4.
+  - Enquanto perseguindo por proximidade (e não em rage): velocidade = `originalSpeed * 1.15`. Durante rage o bônus não aplica.
+  - Fora do alcance, chaser e smart vagueiam; wanderer continua vagueando exceto quando jogador entra no alcance.
+  - Flag `enemy.isChasingByProximity`; constante `CHASE_PROXIMITY_ENTER` (3), `CHASE_PROXIMITY_LEAVE` (4), `CHASE_SPEED_MULTIPLIER` (1.15).
+  - Feedback visual: aura amarelo-esverdeada sutil em EntityRenderer (`_drawChaseProximityEffect`) quando `isChasingByProximity && !isRaging`.
+
 - **DropSystem** (`js/systems/DropSystem.js`) — Fase 20 (ouro)
   - Brick: 5% fixo. Zumbi: 15–30% definido pelo seed do level (determinístico)
   - Escuta `brick:destroyed` e `enemy:killed`; emite `drop:spawned` com `{ col, row, value }` (valor 1, 5 ou 10)

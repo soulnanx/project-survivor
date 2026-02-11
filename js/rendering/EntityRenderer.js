@@ -170,6 +170,11 @@ export default class EntityRenderer {
             this._drawRageEffects(ctx, enemy);
         }
 
+        // Fase 25: efeito sutil quando perseguindo por proximidade (não durante rage)
+        if (enemy.isChasingByProximity && !enemy.isRaging) {
+            this._drawChaseProximityEffect(ctx, enemy);
+        }
+
         // Try sprite rendering first, fallback to procedural
         if (this.zombieLoader.isReady()) {
             this._drawZombieSprite(ctx, enemy);
@@ -627,7 +632,27 @@ export default class EntityRenderer {
         const size = TILE_SIZE * 0.8;
         ctx.fillStyle = '#ff0000';
         ctx.fillRect(x - size / 2, y - size / 2, size, size);
-        
+
+        ctx.restore();
+    }
+
+    /**
+     * Efeito visual sutil quando zumbi está perseguindo por proximidade (Fase 25)
+     * Aura/brilho amarelo-esverdeado atrás do zumbi, distinto do rage.
+     * @param {CanvasRenderingContext2D} ctx
+     * @param {Object} enemy - Enemy entity
+     */
+    _drawChaseProximityEffect(ctx, enemy) {
+        const { x, y, animTimer = 0 } = enemy;
+        const baseRadius = (TILE_SIZE * ZOMBIE_SPRITE_SCALE) / 2;
+        const pulse = Math.sin(animTimer * 4) * 0.1 + 0.15; // alpha entre ~0.05 e 0.25
+        ctx.save();
+        ctx.globalAlpha = pulse;
+        ctx.strokeStyle = '#aacc44';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(x, y, baseRadius + 4, 0, Math.PI * 2);
+        ctx.stroke();
         ctx.restore();
     }
 }

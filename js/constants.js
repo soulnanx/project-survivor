@@ -204,3 +204,8 @@ export const RAGE_COOLDOWN = 1.5; // segundos após sair de rage
 
 // Visual
 export const RAGE_VISUAL_FADE_TIME = 0.5; // segundos para fade out
+
+// Perseguição por proximidade (Fase 25)
+export const CHASE_PROXIMITY_ENTER = 3;   // entra em perseguição quando distância ≤ 3
+export const CHASE_PROXIMITY_LEAVE = 4;   // sai quando distância > 4 (histerese)
+export const CHASE_SPEED_MULTIPLIER = 1.15; // bônus de velocidade (15%)

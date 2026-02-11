@@ -84,20 +84,21 @@ Atualmente o **chaser** sempre persegue o jogador; o **smart** sempre faz pathfi
 - **Constantes:**  
   - `CHASE_PROXIMITY_ENTER = 3`, `CHASE_PROXIMITY_LEAVE = 4`, `CHASE_SPEED_MULTIPLIER = 1.15`.
 
-### Decisões em aberto
+### Decisões tomadas na implementação
 
-- **Chaser/Smart fora do alcance:** Vaguear como wanderer, ficar parado, ou “perseguir em velocidade normal” (sem bônus)? A spec sugere “não perseguir e vaguear” para manter consistência com a ideia de “só persegue quando perto”.
-- **Feedback visual:** Mostrar indicador quando zumbi está “em perseguição por proximidade” (ex.: ícone ou cor)? Opcional para esta fase.
+- **Chaser/Smart fora do alcance:** Vaguear como wanderer (escolher direções aleatórias).
+- **Feedback visual:** Sim — aura/brilho amarelo-esverdeado sutil quando em perseguição por proximidade (`_drawChaseProximityEffect` no EntityRenderer).
 
 ---
 
 ## Checklist de Aceitação
 
-- [ ] Distância jogador–zumbi calculada em grid (Manhattan); constantes 3 e 4 para entrada/saída.
-- [ ] Wanderer persegue o jogador quando jogador ≤ 3 blocos; deixa de perseguir quando > 4 (histerese).
-- [ ] Chaser e Smart só perseguem o jogador quando ≤ 3 blocos; fora do alcance não perseguem (comportamento definido).
-- [ ] Enquanto perseguindo por proximidade (e não em rage), velocidade = originalSpeed × 1.15.
-- [ ] Durante rage, bônus de proximidade não aplica (sem stacking).
-- [ ] Atração (bomba) mantém prioridade; quando alvo é jogador dentro do alcance, bônus de velocidade aplica.
+- [x] Distância jogador–zumbi calculada em grid (Manhattan); constantes 3 e 4 para entrada/saída.
+- [x] Wanderer persegue o jogador quando jogador ≤ 3 blocos; deixa de perseguir quando > 4 (histerese).
+- [x] Chaser e Smart só perseguem o jogador quando ≤ 3 blocos; fora do alcance vagueiam.
+- [x] Enquanto perseguindo por proximidade (e não em rage), velocidade = originalSpeed × 1.15.
+- [x] Durante rage, bônus de proximidade não aplica (sem stacking).
+- [x] Atração (bomba) mantém prioridade; quando alvo é jogador dentro do alcance, bônus de velocidade aplica.
+- [x] Feedback visual sutil quando `isChasingByProximity && !isRaging`.
 
-## Status: ⬜ Pendente
+## Status: ✅ IMPLEMENTADO

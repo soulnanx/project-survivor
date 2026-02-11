@@ -1,6 +1,6 @@
 import Behavior from './Behavior.js';
-import { TILE_SIZE, HUD_HEIGHT } from '../constants.js';
-import { pixelToGridCol, pixelToGridRow, gridToPixelX, gridToPixelY, dist } from '../utils.js';
+import { TILE_SIZE, HUD_HEIGHT, CHASE_PROXIMITY_ENTER, CHASE_PROXIMITY_LEAVE } from '../constants.js';
+import { pixelToGridCol, pixelToGridRow, gridToPixelX, gridToPixelY, dist, manhattanGrid } from '../utils.js';
 
 const DIRECTIONS = [
     { dx: 0, dy: -1, name: 'up' },
@@ -39,6 +39,20 @@ export default class ChaserBehavior extends Behavior {
             return;
         }
 
+        // Proximidade ao jogador (Fase 25) — só perseguir quando no alcance
+        if (player && player.alive) {
+            const playerCol = pixelToGridCol(player.x);
+            const playerRow = pixelToGridRow(player.y);
+            const distanceToPlayer = manhattanGrid(col, row, playerCol, playerRow);
+            if (distanceToPlayer <= CHASE_PROXIMITY_ENTER) {
+                entity.isChasingByProximity = true;
+            } else if (distanceToPlayer > CHASE_PROXIMITY_LEAVE) {
+                entity.isChasingByProximity = false;
+            }
+        } else {
+            entity.isChasingByProximity = false;
+        }
+
         // DIRECTION DECISION
         this.decisionTimer += dt;
 
@@ -55,9 +69,12 @@ export default class ChaserBehavior extends Behavior {
                 if (attraction) {
                     // Move toward attraction (priority over player)
                     this._chooseDirectionToTarget(grid, entityManager, col, row, attraction.col, attraction.row);
-                } else {
-                    // Original behavior: chase player
+                } else if (entity.isChasingByProximity) {
+                    // Perseguir jogador só quando no alcance (Fase 25)
                     this._chooseDirection(entity, grid, entityManager, player, col, row);
+                } else {
+                    // Fora do alcance: vaguear
+                    this._pickRandom(grid, entityManager, col, row);
                 }
             }
             this.decisionTimer = 0;

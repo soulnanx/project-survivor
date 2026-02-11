@@ -98,3 +98,8 @@ export function lerp(a, b, t) {
 export function dist(x1, y1, x2, y2) {
     return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
 }
+
+/** Manhattan distance in grid (cells) */
+export function manhattanGrid(col1, row1, col2, row2) {
+    return Math.abs(col1 - col2) + Math.abs(row1 - row2);
+}

@@ -4,7 +4,8 @@ import { LEVEL_CONFIG, ENEMY_HP_WANDERER, ENEMY_HP_CHASER, ENEMY_HP_SMART,
          KNOCKBACK_FRICTION,
          RAGE_SPEED_MULTIPLIER_BASE, RAGE_SPEED_MULTIPLIER_PER_LEVEL,
          MAX_RAGE_SPEED_MULTIPLIER, RAGE_TRANSITION_TIME,
-         RAGE_DURATION_PAUSE, RAGE_COOLDOWN, RAGE_VISUAL_FADE_TIME } from '../constants.js';
+         RAGE_DURATION_PAUSE, RAGE_COOLDOWN, RAGE_VISUAL_FADE_TIME,
+         CHASE_SPEED_MULTIPLIER } from '../constants.js';
 import EventBus from '../core/EventBus.js';
 import { pixelToGridCol, pixelToGridRow, lerp } from '../utils.js';
 
@@ -45,9 +46,19 @@ export default class Enemy extends Entity {
         this.hasReachedTarget = false;
         this.rageVisualIntensity = 0;
         this.level = level; // Store level for rage speed calculation
+
+        // Perseguição por proximidade (Fase 25)
+        this.isChasingByProximity = false;
     }
 
     update(dt, context) {
+        // Velocidade efetiva: bônus +15% quando perseguindo por proximidade (fora de rage)
+        if (!this.isRaging) {
+            this.speed = this.isChasingByProximity
+                ? this.originalSpeed * CHASE_SPEED_MULTIPLIER
+                : this.originalSpeed;
+        }
+
         super.update(dt, context);
 
         // Processar knockback

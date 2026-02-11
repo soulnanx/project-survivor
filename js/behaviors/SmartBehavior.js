@@ -1,6 +1,6 @@
 import Behavior from './Behavior.js';
-import { TILE_SIZE, CELL_EMPTY } from '../constants.js';
-import { pixelToGridCol, pixelToGridRow, gridToPixelX, gridToPixelY, bfsPath } from '../utils.js';
+import { TILE_SIZE, CELL_EMPTY, CHASE_PROXIMITY_ENTER, CHASE_PROXIMITY_LEAVE } from '../constants.js';
+import { pixelToGridCol, pixelToGridRow, gridToPixelX, gridToPixelY, bfsPath, manhattanGrid } from '../utils.js';
 
 const DIRECTIONS = [
     { dx: 0, dy: -1, name: 'up' },
@@ -48,6 +48,22 @@ export default class SmartBehavior extends Behavior {
             }
             return;
         } else {
+            // Proximidade ao jogador (Fase 25) — só pathfind ao jogador quando no alcance
+            if (player && player.alive) {
+                const playerCol = pixelToGridCol(player.x);
+                const playerRow = pixelToGridRow(player.y);
+                const distanceToPlayer = manhattanGrid(col, row, playerCol, playerRow);
+                if (distanceToPlayer <= CHASE_PROXIMITY_ENTER) {
+                    entity.isChasingByProximity = true;
+                } else if (distanceToPlayer > CHASE_PROXIMITY_LEAVE) {
+                    entity.isChasingByProximity = false;
+                    this.path = null; // Para de seguir path antigo
+                }
+            } else {
+                entity.isChasingByProximity = false;
+                this.path = null;
+            }
+
             // CHECK ATTRACTION SECOND
             const attraction = attractionSystem?.getAttractionTarget(col, row);
 
@@ -57,9 +73,11 @@ export default class SmartBehavior extends Behavior {
                 if (attraction) {
                     // Pathfind to attraction instead of player
                     this._recalcPathToTarget(entity, grid, entityManager, col, row, attraction.col, attraction.row);
-                } else {
-                    // Original behavior: pathfind to player
+                } else if (entity.isChasingByProximity) {
+                    // Pathfind to player só quando no alcance
                     this._recalcPath(entity, grid, entityManager, player, col, row);
+                } else {
+                    this.path = null;
                 }
                 this.recalcTimer = 0;
             }

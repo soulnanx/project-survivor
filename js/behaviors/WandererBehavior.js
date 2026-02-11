@@ -1,6 +1,6 @@
 import Behavior from './Behavior.js';
-import { TILE_SIZE, HUD_HEIGHT } from '../constants.js';
-import { pixelToGridCol, pixelToGridRow, gridToPixelX, gridToPixelY, dist } from '../utils.js';
+import { TILE_SIZE, HUD_HEIGHT, CHASE_PROXIMITY_ENTER, CHASE_PROXIMITY_LEAVE } from '../constants.js';
+import { pixelToGridCol, pixelToGridRow, gridToPixelX, gridToPixelY, dist, manhattanGrid } from '../utils.js';
 
 const DIRECTIONS = [
     { dx: 0, dy: -1, name: 'up' },
@@ -18,7 +18,7 @@ export default class WandererBehavior extends Behavior {
     }
 
     update(entity, dt, context) {
-        const { grid, entityManager, attractionSystem } = context;
+        const { grid, entityManager, attractionSystem, player } = context;
         entity.moving = true;
 
         const col = pixelToGridCol(entity.x);
@@ -52,6 +52,28 @@ export default class WandererBehavior extends Behavior {
             // Move toward the attraction
             this._moveTowardTarget(entity, dt, grid, entityManager, attraction.col, attraction.row);
             return;
+        }
+
+        // CHECK PROXIMITY TO PLAYER (Fase 25) — perseguir jogador quando perto
+        if (player && player.alive) {
+            const playerCol = pixelToGridCol(player.x);
+            const playerRow = pixelToGridRow(player.y);
+            const distanceToPlayer = manhattanGrid(col, row, playerCol, playerRow);
+
+            if (distanceToPlayer <= CHASE_PROXIMITY_ENTER) {
+                entity.isChasingByProximity = true;
+                this._moveTowardTarget(entity, dt, grid, entityManager, playerCol, playerRow);
+                return;
+            }
+            if (distanceToPlayer > CHASE_PROXIMITY_LEAVE) {
+                entity.isChasingByProximity = false;
+            } else if (entity.isChasingByProximity) {
+                // Entre 3 e 4: manter perseguição
+                this._moveTowardTarget(entity, dt, grid, entityManager, playerCol, playerRow);
+                return;
+            }
+        } else {
+            entity.isChasingByProximity = false;
         }
 
         // NORMAL WANDERING LOGIC
