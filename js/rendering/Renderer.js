@@ -70,6 +70,7 @@ export default class Renderer {
 
         if (state === STATE_HUB) {
             this.backgroundLayer.draw(ctx);
+            this._drawHubStructures(ctx, renderContext.hubDecorations);
             this._drawHubPOIMarkers(ctx, renderContext.hubPOIs);
             this._drawEntities(ctx, renderContext);
             this.uiRenderer.drawHub(ctx, renderContext);
@@ -98,6 +99,69 @@ export default class Renderer {
             case STATE_LEVEL_COMPLETE:
                 this.uiRenderer.drawLevelComplete(ctx, renderContext);
                 break;
+        }
+    }
+
+    /**
+     * Desenha estruturas visuais do HUB (Fase 26): escada, balcão, etc.
+     * Usa placeholders (retângulos/formas) quando não há sprite; não altera o grid.
+     */
+    _drawHubStructures(ctx, hubDecorations) {
+        if (!hubDecorations || hubDecorations.length === 0) return;
+
+        const pad = TILE_SIZE * 0.1;
+        const w = TILE_SIZE - pad * 2;
+        const h = TILE_SIZE - pad * 2;
+
+        for (const dec of hubDecorations) {
+            const x = gridToPixelX(dec.col) - TILE_SIZE / 2 + pad;
+            const y = gridToPixelY(dec.row) - TILE_SIZE / 2 + pad;
+
+            switch (dec.type) {
+                case POI_TYPE_DUNGEON: {
+                    // Placeholder: escada (degraus descendo)
+                    const stepH = h / 4;
+                    ctx.fillStyle = '#5a4a3a';
+                    ctx.strokeStyle = '#3a2a1a';
+                    ctx.lineWidth = 2;
+                    for (let i = 0; i < 4; i++) {
+                        const sy = y + i * stepH;
+                        const sw = w * (1 - i * 0.15);
+                        const sx = x + (w - sw) / 2;
+                        ctx.fillRect(sx, sy, sw, stepH);
+                        ctx.strokeRect(sx, sy, sw, stepH);
+                    }
+                    ctx.fillStyle = '#2a1a0a';
+                    ctx.fillRect(x + w * 0.3, y + h * 0.5, w * 0.4, h * 0.2);
+                    break;
+                }
+                case POI_TYPE_SHOP: {
+                    // Placeholder: balcão (retângulo horizontal)
+                    ctx.fillStyle = '#8a7a5a';
+                    ctx.strokeStyle = '#5a4a3a';
+                    ctx.lineWidth = 2;
+                    ctx.fillRect(x, y + h * 0.3, w, h * 0.5);
+                    ctx.strokeRect(x, y + h * 0.3, w, h * 0.5);
+                    ctx.fillStyle = '#e8c040';
+                    ctx.font = 'bold 14px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('$', x + w / 2, y + h * 0.55);
+                    break;
+                }
+                case POI_TYPE_INVENTORY:
+                case POI_TYPE_HIGH_SCORES:
+                default: {
+                    // Placeholder: retângulo colorido por tipo (polish posterior)
+                    const color = dec.type === POI_TYPE_INVENTORY ? 'rgba(60,80,120,0.6)' : 'rgba(90,75,40,0.6)';
+                    ctx.fillStyle = color;
+                    ctx.strokeStyle = dec.type === POI_TYPE_INVENTORY ? '#6b8cce' : '#c9a227';
+                    ctx.lineWidth = 2;
+                    ctx.fillRect(x, y, w, h);
+                    ctx.strokeRect(x, y, w, h);
+                    break;
+                }
+            }
         }
     }
 

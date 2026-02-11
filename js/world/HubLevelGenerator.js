@@ -1,6 +1,6 @@
 /**
- * Gera o level do HUB (Fase 23): grid estático e lista de POIs.
- * O HUB é uma sala segura onde o jogador anda e interage com inventário, loja e entrada da dungeon.
+ * Gera o level do HUB (Fase 23 + Fase 26): grid estático com regiões separadas e decorações.
+ * Layout fixo: quatro cantos para Inventário, Loja, Dungeon e Recordes; spawn em (1,1).
  */
 import { COLS, ROWS, CELL_EMPTY, CELL_WALL } from '../constants.js';
 import {
@@ -8,15 +8,13 @@ import {
     POI_TYPE_SHOP,
     POI_TYPE_DUNGEON,
     POI_TYPE_HIGH_SCORES,
-    HUB_SPAWN_COL,
-    HUB_SPAWN_ROW,
 } from '../constants.js';
 
 export default class HubLevelGenerator {
     /**
-     * Preenche o grid com o mapa do HUB e retorna a lista de POIs.
-     * @param {Grid} grid - Grid a ser preenchido
-     * @returns {{ pois: Array<{ col: number, row: number, type: string }> }}
+     * Preenche o grid com o mapa do HUB e retorna POIs e decorações (camada visual).
+     * @param {Grid} grid - Grid a ser preenchido (apenas CELL_EMPTY / CELL_WALL)
+     * @returns {{ pois: Array<{ col: number, row: number, type: string }>, decorations: Array<{ col: number, row: number, type: string }> }}
      */
     static generate(grid) {
         grid.clear();
@@ -31,15 +29,22 @@ export default class HubLevelGenerator {
             grid.setCell(COLS - 1, r, CELL_WALL);
         }
 
-        // Interior vazio (já é CELL_EMPTY após clear)
-        // POIs em células acessíveis: uma "corredor" central com estações
+        // Interior vazio; POIs em quatro regiões distintas (não uma única fila)
         const pois = [
             { col: 3, row: 2, type: POI_TYPE_INVENTORY },
-            { col: 5, row: 2, type: POI_TYPE_SHOP },
-            { col: 7, row: 2, type: POI_TYPE_DUNGEON },
-            { col: 11, row: 2, type: POI_TYPE_HIGH_SCORES },
+            { col: 11, row: 2, type: POI_TYPE_SHOP },
+            { col: 3, row: 10, type: POI_TYPE_DUNGEON },
+            { col: 11, row: 10, type: POI_TYPE_HIGH_SCORES },
         ];
 
-        return { pois };
+        // Decorações: mesma posição (ou célula da estrutura) para desenho de escada, balcão, etc.
+        const decorations = [
+            { col: 3, row: 2, type: POI_TYPE_INVENTORY },
+            { col: 11, row: 2, type: POI_TYPE_SHOP },
+            { col: 3, row: 10, type: POI_TYPE_DUNGEON },
+            { col: 11, row: 10, type: POI_TYPE_HIGH_SCORES },
+        ];
+
+        return { pois, decorations };
     }
 }

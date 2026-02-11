@@ -22,6 +22,7 @@ Esta pasta contém toda a documentação de especificações e planos de impleme
 - `23-fase-23-hub-level-exploravel.md` - HUB como level explorável (andar, inventário, loja, entrar dungeon) (✅ Implementado)
 - `24-fase-24-aumentar-tamanho-jogador-zumbi.md` - Aumentar tamanho visual do jogador e do zumbi (✅ Implementado)
 - `25-fase-25-comportamento-inimigos-distancia-velocidade.md` - Perseguição ao jogador a ≤3 blocos e velocidade +15% (✅ Implementado)
+- `26-fase-26-hub-distincao-visual-pois.md` - HUB: distinção visual dos POIs (estruturas, cenário por sessão) (✅ Implementado)
 
 ## Status Geral
 
@@ -56,6 +57,7 @@ O jogo é um **survival game com permadeath** inspirado em Project Zomboid:
 - ✅ **Fase 23**: HUB como level explorável (andar no mapa, POIs: inventário, loja, entrada dungeon) - COMPLETA
 - ✅ **Fase 24**: Aumentar tamanho visual do jogador e do zumbi (constantes de escala, apenas renderização) - COMPLETA
 - ✅ **Fase 25**: Alteração no comportamento dos inimigos (perseguir só a ≤3 blocos, velocidade +15%, histerese, feedback visual) - COMPLETA
+- ✅ **Fase 26**: HUB — distinção visual dos POIs (estruturas que lembrem loja, escada para dungeon, etc.) - COMPLETA
 - ⬜ **Fase 22+**: Polish e Expansão
 
 ## Notas sobre Status

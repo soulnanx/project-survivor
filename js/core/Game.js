@@ -73,8 +73,9 @@ export default class Game {
         this.dungeonStartTime = 0; // Tempo de início da dungeon atual
         this.currentDungeonDifficulty = 1; // Dificuldade da dungeon atual
 
-        // HUB explorável (Fase 23)
+        // HUB explorável (Fase 23 + Fase 26)
         this.hubPOIs = [];
+        this.hubDecorations = [];
         this.hubSubState = null; // null | 'inventory' | 'shop' | 'dungeon_confirm' | 'high_scores'
         this.hubDungeonConfirmSelection = 0; // 0 = Sim, 1 = Não
 
@@ -484,8 +485,9 @@ export default class Game {
         this.grid.clear();
         this.renderer.particleSystem.clear();
 
-        const { pois } = HubLevelGenerator.generate(this.grid);
+        const { pois, decorations } = HubLevelGenerator.generate(this.grid);
         this.hubPOIs = pois;
+        this.hubDecorations = decorations;
 
         this.renderer.backgroundLayer.rebuild(this.grid, 'hub', 0);
 
@@ -737,8 +739,9 @@ export default class Game {
             customSeed: this.customSeed,
             canEscape: this.state === STATE_PLAYING && this._isPlayerAtEntrance(),
             introTimer: this.introTimer,
-            // HUB explorável (Fase 23)
+            // HUB explorável (Fase 23 + Fase 26)
             hubPOIs: this.hubPOIs,
+            hubDecorations: this.hubDecorations,
             hubSubState: this.hubSubState,
             hubNearPOI: this.state === STATE_HUB ? this._getHubPOINearPlayer() : null,
             hubDungeonConfirmSelection: this.hubDungeonConfirmSelection,
